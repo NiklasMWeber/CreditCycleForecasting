@@ -2,9 +2,6 @@ import csv
 import numpy as np
 from statistics import mean
 from itertools import groupby
-
-def importData(string):
-    print('Hello '+string)
     
 def importFile(fileWithPath, delimiter):
     x = []
@@ -70,8 +67,8 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     y = np.array([[key, mean(map(lambda x:x[1],list(group)))]for key, group in groupby(y, lambda x: x[0]) if (y_min <= float(key) and float(key) <=y_max)])
     
     Y= y[:,1].astype(np.float64).reshape(-1, 1)
+    years = y[:,0].astype(np.int64).reshape(-1, 1)
     X = np.array([x_1[:,1],x_2[:,1], x_3[:,1]\
                   ,x_3_sqared[:,1]\
                       ,x_4[:,1]]).transpose()
-    years = y[:,0].astype(np.int64).reshape(-1, 1)
     return X,Y,years
