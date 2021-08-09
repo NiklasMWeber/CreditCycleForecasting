@@ -30,7 +30,7 @@ from matplotlib import pyplot as plt
 # Import Data
 x_1,x_2,x_3,x_4_1,x_4_2,y = tools.importData()
 X,Y,year = tools.prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
-del x_1,x_2,x_3,x_4_1,x_4_2,y
+#del x_1,x_2,x_3,x_4_1,x_4_2,y
 
 # Standardize Data
 scaler = pre.StandardScaler()
@@ -64,6 +64,7 @@ predict_train = ridge_reg.predict(X_train)
 # Plot
 fig = plt.figure()
 fig1 = fig.add_subplot(2,1,1)
+fig.tight_layout(pad = 3.0)
 xAxes = range(1,np.shape(predict_test)[0]+1)
 fig1.plot(xAxes, Y_test, label = 'true')
 fig1.plot(xAxes, predict_test, label = 'predict')

@@ -44,10 +44,13 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     x_2 = np.array([x for x in x_2 if (float(x[0])>=y_min and float(x[0])<=y_max)]).astype(np.float64)
     #extract dates -> average years -> take right years
     x_3 = [[x[0].split()[2],float(x[1].replace(',',''))] for x in x_3] #now its a list with [[year,value] possibly with several entries for every year (months,days...)]
-    x_3 = np.array([[key, mean(map(lambda x:x[1],list(group)))]for key, group in groupby(x_3, lambda x: x[0]) if (y_min <= float(key) and float(key) <=y_max)])
+    x_3 = np.array([[key, mean(map(lambda x:x[1],list(group)))]for key, group in groupby(x_3, lambda x: x[0]) if (y_min-1 <= float(key) and float(key) <=y_max)])
     x_3 = np.flip(x_3,0).astype(np.float64)
+    x_3[1:,1] = ((x_3[range(1,len(x_3))]-x_3[range(0,len(x_3)-1)])/x_3[range(0,len(x_3)-1)])[:,1]
+    x_3 = x_3[1:,:]
     
-    x_3_sqared = np.square(x_3)
+    x_3_squared = x_3.copy()
+    x_3_squared[:,1] = x_3[:,1]**2
     
     # extract date and val -> find intersection for dates -> calc diff -> average year-wise
     x_4_1 = [[x[-3],x[-2]] for x in x_4_1[1:]]
@@ -69,6 +72,6 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     Y= y[:,1].astype(np.float64).reshape(-1, 1)
     years = y[:,0].astype(np.int64).reshape(-1, 1)
     X = np.array([x_1[:,1],x_2[:,1], x_3[:,1]\
-                  ,x_3_sqared[:,1]\
+                  ,x_3_squared[:,1]\
                       ,x_4[:,1]]).transpose()
     return X,Y,years
