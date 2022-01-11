@@ -2,6 +2,7 @@ import csv
 import numpy as np
 from statistics import mean
 from itertools import groupby
+
     
 def importFile(fileWithPath, delimiter):
     x = []
