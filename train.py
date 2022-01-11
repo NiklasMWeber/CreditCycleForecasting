@@ -114,6 +114,7 @@ def getKpen(X,Y,max_Kpen,rho = 0.25,alpha=None,normalizeFeatures = True, plotTru
     LossKpenMatrix = np.array(losses).reshape((len(losses),1))+np.array(KpenList).reshape((len(losses),max_linspace))
     mHat = np.argmin(LossKpenMatrix, axis=0)+1
     if plotTrue == True:
+        plt.figure()
         plt.plot(Kpen,mHat)
     
     jumps = -mHat[1:] + mHat[:-1]
@@ -179,9 +180,10 @@ def getmHat(X,Y, Kpen,rho = 0.25,m_max = None,alpha=None,normalizeFeatures = Tru
     
     if plotTrue:
         base = np.linspace(1,m_max,num = m_max)
+        plt.figure()
         plt.plot(base,penalizedLosses)
 
-    return mHat, regs[mHat-1]
+    return mHat, regs[mHat-1], scalers[mHat-1]
     
 
 class SignatureRegression():
@@ -301,28 +303,30 @@ class SignatureRegression():
             plt.title("Ypred against Y")
             plt.show()
         return np.mean((Y - Ypred) ** 2)
+    
+if __name__ == '__main__':
 
-dimPath = 2
-nPaths = 2000
-partition01 = np.array([j*0.01 for j in range(101)])
-mStar = 5
-
-G = dg.GeneratorFermanian1(dimPath,nPaths,partition01,mStar)
-G.generatePath()
-G.generateResponse()
-
-#X = np.array(G.X)
-
-# add time:
-X = np.array([np.concatenate((G.partition01.reshape(-1,1), x),axis = 1) for x in G.X])
-Y = G.Y
-
-Kpen = getKpen(X,Y,max_Kpen = 2000,rho = 0.25,alpha = None,normalizeFeatures = True, plotTrue = False)
-
-mHat, reg = getmHat(X, Y, Kpen, rho = 0.25, alpha = None, m_max = None, normalizeFeatures=True, plotTrue = True)
-
-print('Kpen: ', Kpen)
-print('m_hat: ', mHat)
-print('alpha: ', reg.alpha)
+    dimPath = 2
+    nPaths = 2000
+    partition01 = np.array([j*0.01 for j in range(101)])
+    mStar = 5
+    
+    G = dg.GeneratorFermanian1(dimPath,nPaths,partition01,mStar)
+    G.generatePath()
+    G.generateResponse()
+    
+    #X = np.array(G.X)
+    
+    # add time:
+    X = np.array([np.concatenate((G.partition01.reshape(-1,1), x),axis = 1) for x in G.X])
+    Y = G.Y
+    
+    Kpen = getKpen(X,Y,max_Kpen = 2000,rho = 0.25,alpha = None,normalizeFeatures = True, plotTrue = True)
+    
+    mHat, reg,_ = getmHat(X, Y, Kpen, rho = 0.25, alpha = None, m_max = None, normalizeFeatures=True, plotTrue = True)
+    
+    print('Kpen: ', Kpen)
+    print('m_hat: ', mHat)
+    print('alpha: ', reg.alpha)
     
     

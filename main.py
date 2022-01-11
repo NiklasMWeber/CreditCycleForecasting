@@ -33,7 +33,7 @@ X,Y,year = tools.prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
 del x_1,x_2,x_3,x_4_1,x_4_2,y
 
 # Standardize Data
-X_scaled = StandardScaler().fit_transform(X) #-mean() --> /std
+# X_scaled = StandardScaler().fit_transform(X) #-mean() --> /std
 max_abs_scaler = MaxAbsScaler()
 Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
 
@@ -42,8 +42,8 @@ reg_data = []
 predictors = []
 predictors_for_Signature = []
 for i in range(3,len(year)):
-    predictors.append(X_scaled[(i-3):i,:].reshape(-1))  
-    predictors_for_Signature.append(X_scaled[(i-3):i,:])
+    predictors.append(X[(i-3):i,:].reshape(-1))  
+    predictors_for_Signature.append(X[(i-3):i,:])
     
 reg_data = [np.array(predictors),Y_scaled[3:len(year)]]
     
