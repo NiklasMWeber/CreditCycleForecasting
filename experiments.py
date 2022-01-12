@@ -21,12 +21,15 @@ from train import get_sigX, getKpen, getmHat
 
 class CompareSigAndLinReg():
     
-    def __init__(self, X,Y, testRatio = 0.3):
+    def __init__(self, X = None,Y = None, testRatio = 0.3):
         self.X = X
         self.Y = Y
         self.testRatio = testRatio
         
-    def compare(self):
+    def compare(self, X = None, Y = None):
+        
+        if X != None: self.X = X
+        if Y != None: self.Y = Y
         
         #Find params for Signature Regression
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(self.X,self.Y,test_size = self.testRatio)
@@ -66,6 +69,68 @@ class CompareSigAndLinReg():
         
         return self.MSE_Sig_test,self.MSE_LinReg_test,self.R_Sig_test,self.R_LinReg_test
     
-    def createMatrix(self,nPathsList, numForPartitionList, iterations = None):
-        return None
+    def createComparisonMatrix(self,nPathsList, numForPartitionList,dataGenerator, iterations = 1):
+        
+        self.numErr = 0
+        
+        MSE_Sig_testMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2)) 
+        MSE_LinReg_testMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
+        R_Sig_testMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
+        R_LinReg_testMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2)) 
+        
+        for i_nPaths, nPaths in enumerate(nPathsList):
+            print('nPaths: ', nPaths)
+            for j_num, num in enumerate(numForPartitionList):
+                print('num: ', num)
+                dataGenerator.set_nPaths(nPaths)
+                dataGenerator.set_numForPartition(num)
+                MSE_Sig_testL, MSE_LinReg_testL, R_Sig_testL, R_LinReg_testL = [],[],[],[]
+                for i in range(1,iterations+1):
+                    self.X = dataGenerator.generatePath()
+                    self.Y = dataGenerator.generateResponse()
+                    #calcSuccess = False
+                    MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = self.compare()
+                    #while calcSuccess == False:
+                        # try:
+                        #     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = self.compare()
+                        #     calcSuccess =True
+                        # except:
+                        #     self.numErr += 1
+                        #     print('Calc Error No. ' + str(self.numErr))
+                    MSE_Sig_testL.append(MSE_Sig_test)
+                    MSE_LinReg_testL.append(MSE_LinReg_test), 
+                    R_Sig_testL.append(R_Sig_test) 
+                    R_LinReg_testL.append(R_LinReg_test)
+                
+                MSE_Sig_testMatrix[i_nPaths][j_num][0] = np.mean(MSE_Sig_testL)
+                MSE_LinReg_testMatrix[i_nPaths][j_num][0] = np.mean(MSE_LinReg_testL)
+                R_Sig_testMatrix[i_nPaths][j_num][0] = np.mean(R_Sig_testL)
+                R_LinReg_testMatrix[i_nPaths][j_num][0] = np.mean(R_LinReg_testL)
+                
+                MSE_Sig_testMatrix[i_nPaths][j_num][1] = np.std(MSE_Sig_testL)
+                MSE_LinReg_testMatrix[i_nPaths][j_num][1] = np.std(MSE_LinReg_testL)
+                R_Sig_testMatrix[i_nPaths][j_num][1] = np.std(R_Sig_testL)
+                R_LinReg_testMatrix[i_nPaths][j_num][1] = np.std(R_LinReg_testL)
+                
+        
+        self.MSE_Sig_testMatrix, self.MSE_LinReg_testMatrix, self.R_Sig_testMatrix, self.R_LinReg_testMatrix = MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix
+        return self.MSE_Sig_testMatrix, self.MSE_LinReg_testMatrix, self.R_Sig_testMatrix, self.R_LinReg_testMatrix
+    
+if __name__ == '__main__':
+    comparer = CompareSigAndLinReg(testRatio = 0.3)
+    
+    dimPath = 3
+    mStar = 5
+    nPathsList = [33,50,100,200,500,1000,3000]
+    numForPartitionList = [3,5,10,20,50,100]
+    
+    G = dg.GeneratorFermanian1(dimPath,nPathsList[0],mStar, num = numForPartitionList[0])
+    
+    MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = comparer.createComparisonMatrix(nPathsList,numForPartitionList,G,20)
+    
+    
+    
+
+
+    
  

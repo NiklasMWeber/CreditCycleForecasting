@@ -18,18 +18,27 @@ class DataGenerator:
         
     def generatePath(self):
         self.X = self.generator.generatePath()
+        return self.X
         
     def generateResponse(self):
         self.Y = self.generator.generateResponse()
+        return self.Y
         
         
 class GeneratorFermanian1(DataGenerator):
-    def __init__(self, dimPath, nPaths, partition01, mStar):
+    def __init__(self, dimPath, nPaths, mStar, num):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
-        self.partition01 = partition01
+        self.num = num
+        self.partition01 = np.linspace(0,1,num=num)
         self.mStar = mStar
+        
+    def set_nPaths(self, nPaths):
+        self.nPaths = nPaths
+        
+    def set_numForPartition(self,num):
+        self.partition01 = np.linspace(0,1,num=num)
     
         
     def generatePath(self):

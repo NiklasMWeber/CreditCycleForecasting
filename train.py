@@ -120,7 +120,10 @@ def getKpen(X,Y,max_Kpen,rho = 0.25,alpha=None,normalizeFeatures = True, plotTru
     jumps = -mHat[1:] + mHat[:-1]
     quantile = np.quantile(jumps, 0.25)
     tmp = np.where(jumps>=max(1,quantile)) #+2 because jumps and Kpen are both legged -1 compared to value of Kpen
-    KpenVal = 2*(min(tmp[0])+2)
+    try:
+        KpenVal = 2*(min(tmp[0])+2)
+    except:
+        KpenVal = 2*max_Kpen
 
     return KpenVal
 
@@ -311,7 +314,7 @@ if __name__ == '__main__':
     partition01 = np.array([j*0.01 for j in range(101)])
     mStar = 5
     
-    G = dg.GeneratorFermanian1(dimPath,nPaths,partition01,mStar)
+    G = dg.GeneratorFermanian1(dimPath,nPaths,mStar, num = 101)
     G.generatePath()
     G.generateResponse()
     

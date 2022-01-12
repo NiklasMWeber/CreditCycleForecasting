@@ -1,0 +1,12 @@
+if __name__ == '__main__':
+    comparer = CompareSigAndLinReg(testRatio = 0.3)
+    
+    dimPath = 3
+    mStar = 5
+    nPathsList = [33,50,100,200,500,1000,3000]
+    numForPartitionList = [3,5,10,20,50,100]
+    
+    G = dg.GeneratorFermanian1(dimPath,nPathsList[0],mStar, num = numForPartitionList[0])
+    
+    MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = comparer.createComparisonMatrix(nPathsList,numForPartitionList,G,20)
+
