@@ -5,7 +5,7 @@ Created on Thu Aug  5 11:22:08 2021
 @author: Niklas Weber
 """
 
-import tools
+from tools import add_time, importData, prepareData
 import numpy as np
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler
 from sklearn.linear_model import Ridge
@@ -30,8 +30,8 @@ from dataGeneration import GeneratorMacroData
 #=============================================================================
 
 # Import Data
-x_1,x_2,x_3,x_4_1,x_4_2,y = tools.importData()
-X,Y,year = tools.prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
+x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
 del x_1,x_2,x_3,x_4_1,x_4_2,y
 
 # Standardize Data
@@ -48,20 +48,25 @@ for i in range(3,len(year)):
     predictors_for_Signature.append(X[(i-3):i,:])
     
 predictors = np.array(predictors_for_Signature)
-X_time = tools.add_time(predictors)
+X_time = add_time(predictors)
 Y = np.array(Y_scaled[3:len(year)])
     
 G = GeneratorMacroData()
+G.generatePath()
+G.generateResponse()
+Y = G.Y
+X = add_time(G.X)
+
 
 
 # Train and fit ridge regression
 print('Niklas')
 
-ridge_reg = Ridge(alpha = 100, fit_intercept=False)
-ridge_reg.fit(get_sigX(np.array(X_train),2),Y_train)
+# ridge_reg = Ridge(alpha = 100, fit_intercept=False)
+# ridge_reg.fit(get_sigX(np.array(X_train),2),Y_train)
 
-predict_test = ridge_reg.predict(get_sigX(np.array(X_test),2))
-predict_train = ridge_reg.predict(get_sigX(np.array(X_train),2))
+# predict_test = ridge_reg.predict(get_sigX(np.array(X_test),2))
+# predict_train = ridge_reg.predict(get_sigX(np.array(X_train),2))
 
 # Plot
 # fig = plt.figure()

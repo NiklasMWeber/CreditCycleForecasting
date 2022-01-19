@@ -512,31 +512,30 @@ class SignatureRegressionNik():
     def score_fromSig(self, sigX, Y):
         return 1-self.get_loss_fromSig(sigX,Y)/ np.mean((Y-np.mean(Y))**2)
     
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    import dataGeneration as dg
+#     import dataGeneration as dg
     
-    dimPath = 2
-    nPaths = 10000
-    #partition01 = np.array([j*0.01 for j in range(101)])
-    mStar = 5
+#     dimPath = 2
+#     nPaths = 10000
+#     mStar = 5
     
-    G = dg.GeneratorFermanian1(dimPath,nPaths,mStar, num = 101)
-    G.generatePath()
-    G.generateResponse()
+#     G = dg.GeneratorFermanian1(dimPath,nPaths,mStar, num = 101)
+#     G.generatePath()
+#     G.generateResponse()
     
-    #X = np.array(G.X)
+#     #X = np.array(G.X)
     
-    # add time:
-    X = np.array([np.concatenate((G.partition01.reshape(-1,1), x),axis = 1) for x in G.X])
-    Y = G.Y
+#     # add time:
+#     X = np.array([np.concatenate((G.partition01.reshape(-1,1), x),axis = 1) for x in G.X])
+#     Y = G.Y
     
-    Kpen = getKpen(X,Y,max_Kpen = 2000,rho = 0.25,alpha = None,normalizeFeatures = True, plotTrue = True)
+#     Kpen = getKpen(X,Y,max_Kpen = 2000,rho = 0.25,alpha = None,normalizeFeatures = True, plotTrue = True)
     
-    mHat, reg,_ = getmHat(X, Y, Kpen, rho = 0.25, alpha = None, m_max = None, normalizeFeatures=True, plotTrue = True)
+#     mHat, reg,_ = getmHat(X, Y, Kpen, rho = 0.25, alpha = None, m_max = None, normalizeFeatures=True, plotTrue = True)
     
-    print('Kpen: ', Kpen)
-    print('m_hat: ', mHat)
-    print('alpha: ', reg.alpha)
+#     print('Kpen: ', Kpen)
+#     print('m_hat: ', mHat)
+#     print('alpha: ', reg.alpha)
     
     

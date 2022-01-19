@@ -15,8 +15,6 @@ from train import get_sigX, getKpen, select_hatm_cv, SignatureRegressionNik
 from tools import add_time
 
 
-
-
 class CompareSigAndLinReg():
     
     def __init__(self, X = None,Y = None, testRatio = 0.3):
@@ -24,7 +22,7 @@ class CompareSigAndLinReg():
         self.Y = Y
         self.testRatio = testRatio
         
-    def compare(self, X = None, Y = None, Kpen = None, mHat = None, addTime = True, normalizeFeatures = True):
+    def compare(self, X = None, Y = None, Kpen = None, mHat = None, normalizeFeatures = True):
         
         if X != None: self.X = X
         if Y != None: self.Y = Y
@@ -176,22 +174,18 @@ class CompareSigAndLinReg():
 if __name__ == '__main__':
     import dataGeneration as dg
     
-    comparer = CompareSigAndLinReg(testRatio = 0.33)
+    comparer = CompareSigAndLinReg(testRatio = 0.5)
     
     dimPath = 3
     mStar = 5
-    nPathsList = [33] #, 50, 100, 200, 500, 1000]
-    numForPartitionList = [3]#,5,10,20,50,100]
+    nPathsList = [33, 50, 100, 200, 500, 1000]
+    numForPartitionList = [3,5,10,20,50,100]
     
-    G = dg.GeneratorMacroData(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
+    G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
                                    num = numForPartitionList[0])
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
-        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G,20, Kpen = 1, mHat = None)
+        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G,20, Kpen = 1, mHat = None, addTime = True)
     R_Sig_trainMatrix, R_LinReg_trainMatrix = comparer.R_Sig_trainMatrix, comparer.R_LinReg_trainMatrix
     mHat_Matrix, Kpen_Matrix = comparer.mHat_Matrix, comparer.Kpen_Matrix
     
-
-
-    
- 

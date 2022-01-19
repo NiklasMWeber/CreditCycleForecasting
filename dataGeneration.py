@@ -6,7 +6,7 @@ Created on Mon Jan  3 17:50:46 2022
 """
 import numpy as np
 import math
-import tools
+from tools import importData, prepareData
 from train import get_sigX
 from skfda.misc.covariances import Exponential
 from skfda.datasets import make_gaussian_process
@@ -244,7 +244,8 @@ class GeneratorMacroData(DataGenerator):
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num
-        self.partition01 = np.linspace(0,1,num=num)
+        if num != None:
+            self.partition01 = np.linspace(0,1,num=num)
         self.mStar = mStar
         
     def set_nPaths(self, nPaths):
@@ -255,8 +256,8 @@ class GeneratorMacroData(DataGenerator):
         self.partition01 = np.linspace(0,1,num=self.num)
     
     def generatePath(self):
-        x_1,x_2,x_3,x_4_1,x_4_2,y = tools.importData()
-        X,Y,year = tools.prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
+        x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+        X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
         del x_1,x_2,x_3,x_4_1,x_4_2,y
 
         # Standardize Data
@@ -343,28 +344,28 @@ class GeneratorMacroData(DataGenerator):
 #     def generateResponse(self):
 #         return self.Y 
 ##############################################################################      
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+# if __name__ == '__main__':
+#     import matplotlib.pyplot as plt
     
-    dimPath = 3
-    nPaths = 100
-    num = 101
-    mStar = 5
+#     dimPath = 3
+#     nPaths = 100
+#     num = 101
+#     mStar = 5
     
-    G = GeneratorFermanianGaussian(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
+#     G = GeneratorFermanianGaussian(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
     
-    G.generatePath()
-    X = G.X[0]
-    #a = G.a[0,:,2]
-    G.generateResponse()
+#     G.generatePath()
+#     X = G.X[0]
+#     #a = G.a[0,:,2]
+#     G.generateResponse()
     
-    ### Some plotting
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y')
-    plt.show()
+#     ### Some plotting
+#     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r')
+#     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b')
+#     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g')
+#     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y')
+#     plt.show()
     
-    ### Test how signature works --> time is No. of rows. Each column is one datatype e.g. GDP     
-    #X = np.array([[1,1],[2,2],[1.5,3]])
-    #sigX = ts.stream2sig(X, 2)
+#     ### Test how signature works --> time is No. of rows. Each column is one datatype e.g. GDP     
+#     #X = np.array([[1,1],[2,2],[1.5,3]])
+#     #sigX = ts.stream2sig(X, 2)
