@@ -3,7 +3,26 @@ import numpy as np
 from statistics import mean
 from itertools import groupby
 
-    
+
+
+def add_time(X):
+	"""Adds a dimension with time to each smaple in X
+
+	Parameters
+	----------
+	X: array, shape (n, npoints, d)
+		Array of paths. It is a 3-dimensional array, containing the coordinates in R^d of n piecewise
+		linear paths, each composed of n_points.
+
+	Returns
+	-------
+	Xtime: array, shape (n, npoints, d + 1)
+		Same array as X but with an extra dimension at the end, corresponding to time.
+	"""
+	times = np.tile(np.linspace(0, 1, X.shape[1]), (X.shape[0], 1))
+	Xtime = np.concatenate([X, times.reshape((times.shape[0], times.shape[1], 1))], axis=2)
+	return Xtime
+  
 def importFile(fileWithPath, delimiter):
     x = []
     with open(fileWithPath, 'r') as file:
@@ -73,6 +92,6 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     Y= y[:,1].astype(np.float64).reshape(-1, 1)
     years = y[:,0].astype(np.int64).reshape(-1, 1)
     X = np.array([x_1[:,1],x_2[:,1], x_3[:,1]\
-                  ,x_3_squared[:,1]\
+                  #,x_3_squared[:,1]\
                       ,x_4[:,1]]).transpose()
     return X,Y,years
