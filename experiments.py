@@ -174,14 +174,14 @@ class CompareSigAndLinReg():
 if __name__ == '__main__':
     import dataGeneration as dg
     
-    comparer = CompareSigAndLinReg(testRatio = 0.5)
+    comparer = CompareSigAndLinReg(testRatio = 0.33)
     
     dimPath = 3
     mStar = 5
-    nPathsList = [33, 50, 100, 200, 500, 1000]
-    numForPartitionList = [3,5,10,20,50,100]
+    nPathsList = [1]#33, 50, 100, 200, 500, 1000]
+    numForPartitionList = [1]#[3,5,10,20,50,100]
     
-    G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
+    G = dg.GeneratorMacroData(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
                                    num = numForPartitionList[0])
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
