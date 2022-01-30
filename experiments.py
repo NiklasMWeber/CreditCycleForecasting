@@ -181,7 +181,7 @@ if __name__ == '__main__':
     nPathsList = [1]#33, 50, 100, 200, 500, 1000]
     numForPartitionList = [1]#[3,5,10,20,50,100]
     
-    G = dg.GeneratorMacroData(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
+    G = dg.GeneratorMacroDataFromNumpy(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
                                    num = numForPartitionList[0])
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \

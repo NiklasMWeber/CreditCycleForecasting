@@ -281,6 +281,51 @@ class GeneratorMacroData(DataGenerator):
     def generateResponse(self):
         return self.Y
     
+class GeneratorMacroDataFromNumpy(DataGenerator):
+    
+    def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None):
+        DataGenerator.__init__(self)
+        self.dimPath = dimPath
+        self.nPaths = nPaths
+        self.num = num
+        if num != None:
+            self.partition01 = np.linspace(0,1,num=num)
+        self.mStar = mStar
+        
+    def set_nPaths(self, nPaths):
+        self.nPaths = nPaths
+        
+    def set_numForPartition(self,num):
+        self.num = num+1
+        self.partition01 = np.linspace(0,1,num=self.num)
+    
+    def generatePath(self):
+        #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+        mat = np.load('macrodata.npy')
+        X,Y,year = mat[:,1:6], mat[:,-1].reshape((-1,1)), mat[:,0].reshape((-1,1))
+        #del x_1,x_2,x_3,x_4_1,x_4_2,y
+
+        # Standardize Data
+        X = StandardScaler().fit_transform(X) #-mean() --> /std
+        max_abs_scaler = MaxAbsScaler()
+        Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
+
+    # Construct 3 year rolling windows:
+        reg_data = []
+        predictors = []
+        predictors_for_Signature = []
+        for i in range(3,len(year)):
+            predictors.append(X[(i-3):i,:].reshape(-1))  
+            predictors_for_Signature.append(X[(i-3):i,:])
+    
+        predictors = np.array(predictors_for_Signature)
+        self.X = predictors
+        self.Y = np.array(Y_scaled[3:len(year)])
+        return self.X
+    
+    def generateResponse(self):
+        return self.Y
+    
    
 ########## Classes to generate Fermanian Data (using her Method) ########################################
 # from get_data import get_train_test_data    
@@ -352,9 +397,14 @@ if __name__ == '__main__':
     num = 101
     mStar = 5
     
-    G = GeneratorFermanianGaussian(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
-    
+    mat = np.load('macrodata.npy')
+    G = GeneratorMacroDataFromNumpy(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
     G.generatePath()
+    
+    G2 = GeneratorMacroData(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
+    G2.generatePath()
+    G2.generateResponse()
+    
     X = G.X[0]
     #a = G.a[0,:,2]
     G.generateResponse()

@@ -92,6 +92,13 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     Y= y[:,1].astype(np.float64).reshape(-1, 1)
     years = y[:,0].astype(np.int64).reshape(-1, 1)
     X = np.array([x_1[:,1],x_2[:,1], x_3[:,1]\
-                  #,x_3_squared[:,1]\
+                  ,x_3_squared[:,1]\
                       ,x_4[:,1]]).transpose()
     return X,Y,years
+
+# X,Y,years = prepareData(importData()[0],importData()[1],importData()[2],importData()[3],importData()[4],importData()[5])
+# mat = np.concatenate((X,Y), axis = 1)
+# mat = np.concatenate((years,mat), axis = 1)
+
+mat = np.load('macrodata.npy')
+X,Y,years = mat[:,1:6], mat[:,-1].reshape((-1,1)), mat[:,0].reshape((-1,1))
