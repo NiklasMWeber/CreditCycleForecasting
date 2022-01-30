@@ -302,7 +302,7 @@ class GeneratorMacroDataFromNumpy(DataGenerator):
     def generatePath(self):
         #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
         mat = np.load('macrodata.npy')
-        X,Y,year = mat[:,1:6], mat[:,-1].reshape((-1,1)), mat[:,0].reshape((-1,1))
+        X,Y,year = mat[:,1:-1], mat[:,-1].reshape((-1,1)), mat[:,0].reshape((-1,1))
         #del x_1,x_2,x_3,x_4_1,x_4_2,y
 
         # Standardize Data
@@ -414,7 +414,7 @@ if __name__ == '__main__':
     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b')
     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g')
     plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange')
+    #plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange')
     plt.show()
     
     ### Test how signature works --> time is No. of rows. Each column is one datatype e.g. GDP     
