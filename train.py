@@ -27,158 +27,158 @@ def get_sigX(X,m):
 	        sigX[i, 1:] = ii.sig(X[i, :, :], m)
         return sigX
 
-def getKpen(X,Y,max_Kpen,rho = 0.25,alpha=None,normalizeFeatures = True, plotTrue = False ):
-    '''
-    - Finds K_pen following Birge a d Massart,
-    - alpha by Cross-validation during regression on order 1 Signature (-->
-    For this reason it will be a good idea to normalize signature entries)
-    - and returns the scaler to make it availbale for potential predicting.
+# def getKpen(X,Y,max_Kpen,rho = 0.25,alpha=None,normalizeFeatures = True, plotTrue = False ):
+#     '''
+#     - Finds K_pen following Birge a d Massart,
+#     - alpha by Cross-validation during regression on order 1 Signature (-->
+#     For this reason it will be a good idea to normalize signature entries)
+#     - and returns the scaler to make it availbale for potential predicting.
 
-    Parameters
-    ----------
-    X : TYPE
-        DESCRIPTION.
-    Y : TYPE
-        DESCRIPTION.
-    max_Kpen : TYPE
-        DESCRIPTION.
-    rho : TYPE, optional
-        DESCRIPTION. The default is 0.4.
-    alpha : TYPE, optional
-        DESCRIPTION. The default is None.
-    normalizeFeatures : TYPE, optional
-        DESCRIPTION. The default is True.
-    plotTrue : TYPE, optional
-        DESCRIPTION. The default is False.
+#     Parameters
+#     ----------
+#     X : TYPE
+#         DESCRIPTION.
+#     Y : TYPE
+#         DESCRIPTION.
+#     max_Kpen : TYPE
+#         DESCRIPTION.
+#     rho : TYPE, optional
+#         DESCRIPTION. The default is 0.4.
+#     alpha : TYPE, optional
+#         DESCRIPTION. The default is None.
+#     normalizeFeatures : TYPE, optional
+#         DESCRIPTION. The default is True.
+#     plotTrue : TYPE, optional
+#         DESCRIPTION. The default is False.
 
-    Returns
-    -------
-    KpenVal : TYPE
-        DESCRIPTION.
-    alpha : TYPE
-        DESCRIPTION.
-    Scaler : StandardScaler
-        Used to normalize data
+#     Returns
+#     -------
+#     KpenVal : TYPE
+#         DESCRIPTION.
+#     alpha : TYPE
+#         DESCRIPTION.
+#     Scaler : StandardScaler
+#         Used to normalize data
 
-    '''
+#     '''
     
-    dimPath = len(X[0][0])
-    nPaths = len(X)
-    m_max = 1
-    while ii.siglength(dimPath, m_max+1) < nPaths: m_max += 1
-    if plotTrue == True:
-        print('m_Max is '+ str(m_max))
+#     dimPath = len(X[0][0])
+#     nPaths = len(X)
+#     m_max = 1
+#     while ii.siglength(dimPath, m_max+1) < nPaths: m_max += 1
+#     if plotTrue == True:
+#         print('m_Max is '+ str(m_max))
     
-    Kpen = np.concatenate(( np.array([1e-6, 1e-5,1e-4,1e-3,1e-2,1e-1])  ,np.linspace(1,max_Kpen,max_Kpen)))
-    penList = []
-    losses = []
-    scalers = []
-    scaler = None
+#     Kpen = np.concatenate(( np.array([1e-6, 1e-5,1e-4,1e-3,1e-2,1e-1])  ,np.linspace(1,max_Kpen,max_Kpen)))
+#     penList = []
+#     losses = []
+#     scalers = []
+#     scaler = None
     
-    for m in range(1,m_max+1):
-        sigX = get_sigX(X,m)
+#     for m in range(1,m_max+1):
+#         sigX = get_sigX(X,m)
         
-        if normalizeFeatures == True:
-            scaler = StandardScaler()
-            scaler.fit(sigX)
-            scalers.append(scaler)
-            sigX = scaler.transform(sigX)
+#         if normalizeFeatures == True:
+#             scaler = StandardScaler()
+#             scaler.fit(sigX)
+#             scalers.append(scaler)
+#             sigX = scaler.transform(sigX)
             
-        if alpha is None: #set alpha by cross-validation in the first iteration of loop
-            alphas=np.linspace(10 ** (-6), 100, num=1000)
-            reg_cv = RidgeCV(alphas=alphas, store_cv_values=True, fit_intercept=False, gcv_mode='svd')
-            reg_cv.fit(sigX, Y)
-            alpha = reg_cv.alpha_
+#         if alpha is None: #set alpha by cross-validation in the first iteration of loop
+#             alphas=np.linspace(10 ** (-6), 100, num=1000)
+#             reg_cv = RidgeCV(alphas=alphas, store_cv_values=True, fit_intercept=False, gcv_mode='svd')
+#             reg_cv.fit(sigX, Y)
+#             alpha = reg_cv.alpha_
             
-        reg = Ridge(alpha = alpha, fit_intercept=False)
-        reg.fit(sigX,Y)
-        predict_train = reg.predict(sigX)
+#         reg = Ridge(alpha = alpha, fit_intercept=False)
+#         reg.fit(sigX,Y)
+#         predict_train = reg.predict(sigX)
         
-        pen = Kpen.reshape((1,len(Kpen)))/(nPaths**rho)*math.sqrt(ii.siglength(dimPath,m))
-        penList.append(pen)
-        #squareLoss = sum((Y_test-predict_test)**2)
-        squareLoss = sum((Y-predict_train)**2)/len(Y)
-        losses.append(squareLoss)
+#         pen = Kpen.reshape((1,len(Kpen)))/(nPaths**rho)*math.sqrt(ii.siglength(dimPath,m))
+#         penList.append(pen)
+#         #squareLoss = sum((Y_test-predict_test)**2)
+#         squareLoss = sum((Y-predict_train)**2)/len(Y)
+#         losses.append(squareLoss)
         
-    # The following part tries to find the first bigger jump (Birge, Massart)
-    LossKpenMatrix = np.array(losses).reshape((len(losses),1))+np.array(penList).reshape((len(losses),len(Kpen)))
-    mHat = np.argmin(LossKpenMatrix, axis=0)+1
-    if plotTrue == True:
-        plt.figure()
-        plt.plot(np.linspace(1,len(Kpen), num = len(Kpen)),mHat)
+#     # The following part tries to find the first bigger jump (Birge, Massart)
+#     LossKpenMatrix = np.array(losses).reshape((len(losses),1))+np.array(penList).reshape((len(losses),len(Kpen)))
+#     mHat = np.argmin(LossKpenMatrix, axis=0)+1
+#     if plotTrue == True:
+#         plt.figure()
+#         plt.plot(np.linspace(1,len(Kpen), num = len(Kpen)),mHat)
     
-    jumps = -mHat[1:] + mHat[:-1]
-    quantile = np.quantile(jumps, 0.25)
-    tmp = np.where(jumps>=max(1,quantile))
-    try:
-        #tmp2 = tmp[0]
-        KpenVal = 2*(Kpen[min(tmp[0])+1])
-    except:
-        KpenVal = 2*Kpen[0]
-        print("Warning: No jumps for Kpen extraction found")
+#     jumps = -mHat[1:] + mHat[:-1]
+#     quantile = np.quantile(jumps, 0.25)
+#     tmp = np.where(jumps>=max(1,quantile))
+#     try:
+#         #tmp2 = tmp[0]
+#         KpenVal = 2*(Kpen[min(tmp[0])+1])
+#     except:
+#         KpenVal = 2*Kpen[0]
+#         print("Warning: No jumps for Kpen extraction found")
 
-    return KpenVal
+#     return KpenVal
 
-def getmHat(X,Y, Kpen,rho = 0.25,m_max = None,alpha=None,normalizeFeatures = True, plotTrue = False, mHatInput= None ):
+# def getmHat(X,Y, Kpen,rho = 0.25,m_max = None,alpha=None,normalizeFeatures = True, plotTrue = False, mHatInput= None ):
     
-    mHat = 1
-    dimPath = len(X[0][0])
-    nPaths = len(X)
+#     mHat = 1
+#     dimPath = len(X[0][0])
+#     nPaths = len(X)
     
-    if m_max == None:
-        m_max = 1
-        while ii.siglength(dimPath, m_max+1) < nPaths*10: m_max += 1
+#     if m_max == None:
+#         m_max = 1
+#         while ii.siglength(dimPath, m_max+1) < nPaths*10: m_max += 1
         
-    if plotTrue == True:
-        print('m_max is '+ str(m_max))
+#     if plotTrue == True:
+#         print('m_max is '+ str(m_max))
     
-    losses = []
-    penalizedLosses = []
-    scalers = []
-    regs = []
-    scaler = None
+#     losses = []
+#     penalizedLosses = []
+#     scalers = []
+#     regs = []
+#     scaler = None
     
-    for m in range(1,m_max+1):
-        sigX = get_sigX(X,m)
+#     for m in range(1,m_max+1):
+#         sigX = get_sigX(X,m)
         
-        if normalizeFeatures == True:
-            scaler = StandardScaler()
-            scaler.fit(sigX)
-            scalers.append(scaler)
-            sigX = scaler.transform(sigX)
+#         if normalizeFeatures == True:
+#             scaler = StandardScaler()
+#             scaler.fit(sigX)
+#             scalers.append(scaler)
+#             sigX = scaler.transform(sigX)
             
-        if alpha is None: #select alpha by cross-validation in the first iteration of loop
-            alphas=np.linspace(10 ** (-6), 100, num=1000)
-            reg_cv = RidgeCV(alphas=alphas, store_cv_values=True, fit_intercept=False, gcv_mode='svd')
-            reg_cv.fit(sigX, Y)
-            alpha = reg_cv.alpha_
+#         if alpha is None: #select alpha by cross-validation in the first iteration of loop
+#             alphas=np.linspace(10 ** (-6), 100, num=1000)
+#             reg_cv = RidgeCV(alphas=alphas, store_cv_values=True, fit_intercept=False, gcv_mode='svd')
+#             reg_cv.fit(sigX, Y)
+#             alpha = reg_cv.alpha_
             
-        reg = Ridge(alpha = alpha, fit_intercept=False)
-        reg.fit(sigX,Y)
+#         reg = Ridge(alpha = alpha, fit_intercept=False)
+#         reg.fit(sigX,Y)
         
         
-        predict_train = reg.predict(sigX)
+#         predict_train = reg.predict(sigX)
         
-        regs.append(reg)
+#         regs.append(reg)
         
-        pen = Kpen/(nPaths**rho)*math.sqrt(ii.siglength(dimPath,m))
-        #squareLoss = sum((Y_test-predict_test)**2)
-        squareLoss = sum((Y-predict_train)**2)/len(Y)
-        losses.append(squareLoss)
-        penalizedLosses.append(squareLoss + pen)
+#         pen = Kpen/(nPaths**rho)*math.sqrt(ii.siglength(dimPath,m))
+#         #squareLoss = sum((Y_test-predict_test)**2)
+#         squareLoss = sum((Y-predict_train)**2)/len(Y)
+#         losses.append(squareLoss)
+#         penalizedLosses.append(squareLoss + pen)
         
-    mHat = np.argmin(penalizedLosses) +1
+#     mHat = np.argmin(penalizedLosses) +1
     
-    if plotTrue:
-        base = np.linspace(1,m_max,num = m_max)
-        plt.figure()
-        plt.plot(base,penalizedLosses)
+#     if plotTrue:
+#         base = np.linspace(1,m_max,num = m_max)
+#         plt.figure()
+#         plt.plot(base,penalizedLosses)
 
-    if mHatInput == None:
-        return mHat, regs[mHat-1], scalers[mHat-1]
-    else:
-        mHatInput = min(mHatInput,m_max)
-        return mHatInput, regs[mHatInput-1], scalers[mHatInput-1]
+#     if mHatInput == None:
+#         return mHat, regs[mHat-1], scalers[mHat-1]
+#     else:
+#         mHatInput = min(mHatInput,m_max)
+#         return mHatInput, regs[mHatInput-1], scalers[mHatInput-1]
     
     
 def select_hatm_cv(X, Y, max_k=None, normalizeFeatures=False, plot=False):
@@ -225,7 +225,7 @@ def select_hatm_cv(X, Y, max_k=None, normalizeFeatures=False, plot=False):
         kf = KFold(n_splits=5)
         score_i = []
         for train, test in kf.split(X):
-            reg = SignatureRegressionNik(k, normalizeFeatures=normalizeFeatures)
+            reg = SignatureRegression(k, normalizeFeatures=normalizeFeatures)
             reg.fit_fromSig(sigX[train], Y[train])
             score_i += [reg.get_loss_fromSig(sigX[test], Y[test])]
         score += [np.mean(score_i)]
@@ -357,7 +357,7 @@ def select_hatm_cv(X, Y, max_k=None, normalizeFeatures=False, plot=False):
 #         return 1-self.get_loss(X,Y)/ np.mean((Y-np.mean(Y))**2)
     
     
-class SignatureRegressionNik():
+class SignatureRegression():
     """ Signature regression class
 
     Parameters

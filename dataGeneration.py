@@ -6,7 +6,8 @@ Created on Mon Jan  3 17:50:46 2022
 """
 import numpy as np
 import math
-from tools import importData, prepareData, importDataQ, prepareDataQ, add_basepoint
+#from tools import importData, prepareData
+from tools import importDataQ, prepareDataQ
 from train import get_sigX
 from skfda.misc.covariances import Exponential
 from skfda.datasets import make_gaussian_process
@@ -50,12 +51,11 @@ class GeneratorFermanian1(DataGenerator):
     def generatePath(self):
         self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.X = np.array([self.a[i,:,0]+10*self.a[i,:,1]*np.sin(2*math.pi*self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2]) +10*(self.partition01.reshape(len(self.partition01),1) - self.a[i,:,3])**3 for i in range(self.nPaths)])
-        #[self.a[i,:,0]+10*self.a[i,:,1]*np.sin(2*math.pi*self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2]) +10*(self.partition01.reshape(len(self.partition01),1) - self.a[i,:,3])**3 for i in range(self.nPaths)]
-        #[self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2] for i in range(self.nPaths)]
+
         return self.X
         
     def generateResponse(self):
-        self.sigX = get_sigX(self.X, self.mStar) #[ts.stream2sig(self.X[i],self.mStar) for i in range(self.nPaths)]
+        self.sigX = get_sigX(self.X, self.mStar)
         self.sigdim = len(self.sigX[0])
         self.beta = np.random.rand(self.sigdim)/1000
         self.eps = np.random.uniform(-100,100,size=self.nPaths)
@@ -140,7 +140,6 @@ class GeneratorFermanianDependentMean(DataGenerator):
     
         
     def generatePath(self):
-        #self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.a_path = np.random.rand(self.nPaths,1,4)
         self.a_dim =np.random.rand(1,self.dimPath,1) 
         self.a = self.a_path * self.a_dim
@@ -173,7 +172,6 @@ class GeneratorFermanianDependentMax(DataGenerator):
     
         
     def generatePath(self):
-        #self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.a_path = np.random.rand(self.nPaths,1,4)
         self.a_dim =np.random.rand(1,self.dimPath,1) 
         self.a = self.a_path * self.a_dim
@@ -224,7 +222,6 @@ class GeneratorFermanianGaussian(DataGenerator):
         times = times.reshape((self.num, self.nPaths, self.dimPath)).transpose((1, 0, 2))
         self.slope = 3 * (2 * np.random.random((self.nPaths, self.dimPath)) - 1)
 
-        #Y = np.sqrt(np.sum(slope ** 2, axis=1))
         slope = np.repeat(np.expand_dims(self.slope, 0), self.num, 0).transpose((1, 0, 2))
         for i in range(self.nPaths):
             gp = make_gaussian_process(n_features=self.num, n_samples=self.dimPath, cov=Exponential())
@@ -237,105 +234,110 @@ class GeneratorFermanianGaussian(DataGenerator):
         self.Y = np.sqrt(np.sum(self.slope ** 2, axis=1))
         return self.Y
     
-class GeneratorMacroData(DataGenerator):
+# class GeneratorMacroData(DataGenerator):
     
-    def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None):
-        DataGenerator.__init__(self)
-        self.dimPath = dimPath
-        self.nPaths = nPaths
-        self.num = num
-        if num != None:
-            self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+#     def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None):
+#         DataGenerator.__init__(self)
+#         self.dimPath = dimPath
+#         self.nPaths = nPaths
+#         self.num = num
+#         if num != None:
+#             self.partition01 = np.linspace(0,1,num=num)
+#         self.mStar = mStar
         
-    def set_nPaths(self, nPaths):
-        self.nPaths = nPaths
+#     def set_nPaths(self, nPaths):
+#         self.nPaths = nPaths
         
-    def set_numForPartition(self,num):
-        self.num = num+1
-        self.partition01 = np.linspace(0,1,num=self.num)
+#     def set_numForPartition(self,num):
+#         self.num = num+1
+#         self.partition01 = np.linspace(0,1,num=self.num)
     
-    def generatePath(self):
-        x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
-        X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
-        #del x_1,x_2,x_3,x_4_1,x_4_2,y
+#     def generatePath(self):
+#         try:
+#             #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+#             #X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
+#             #del x_1,x_2,x_3,x_4_1,x_4_2,y
+#             print('Deprecated Part of Code!!')
+#         except:
+#             mat = np.load('macrodata.npy')
+#             X,Y = mat[:,1:-1], mat[:,-1].reshape((-1,1))
 
-        # Standardize Data
-        X = StandardScaler().fit_transform(X) #-mean() --> /std
-        max_abs_scaler = MaxAbsScaler()
-        Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
+#         # Standardize Data
+#         X = StandardScaler().fit_transform(X) #-mean() --> /std
+#         max_abs_scaler = MaxAbsScaler()
+#         Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
 
-    # Construct 3 year rolling windows:
-        reg_data = []
-        predictors = []
-        predictors_for_Signature = []
-        for i in range(3,len(year)):
-            predictors.append(X[(i-3):i,:].reshape(-1))  
-            predictors_for_Signature.append(X[(i-3):i,:])
+#     # Construct 3 year rolling windows:
+#         reg_data = []
+#         predictors = []
+#         predictors_for_Signature = []
+#         for i in range(3,len(year)):
+#             predictors.append(X[(i-3):i,:].reshape(-1))  
+#             predictors_for_Signature.append(X[(i-3):i,:])
     
-        predictors = np.array(predictors_for_Signature)
-        self.X = predictors
-        self.Y = np.array(Y_scaled[3:len(year)])
-        return self.X
+#         predictors = np.array(predictors_for_Signature)
+#         self.X = predictors
+#         self.Y = np.array(Y_scaled[3:len(year)])
+#         return self.X
     
-    def generateResponse(self):
-        return self.Y
+#     def generateResponse(self):
+#         return self.Y
     
-class GeneratorMacroDataFromNumpy(DataGenerator):
+# class GeneratorMacroDataFromNumpy(DataGenerator):
     
-    def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None,
-                 windowSize = 3, forecastGap = 0):
-        DataGenerator.__init__(self)
-        self.dimPath = dimPath
-        self.nPaths = nPaths
-        self.num = num
-        self.windowSize = windowSize
-        self.forecastGap = forecastGap
-        if num != None:
-            self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+#     def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None,
+#                  windowSize = 3, forecastGap = 0):
+#         DataGenerator.__init__(self)
+#         self.dimPath = dimPath
+#         self.nPaths = nPaths
+#         self.num = num
+#         self.windowSize = windowSize
+#         self.forecastGap = forecastGap
+#         if num != None:
+#             self.partition01 = np.linspace(0,1,num=num)
+#         self.mStar = mStar
         
-    def set_nPaths(self, nPaths):
-        self.nPaths = nPaths
+#     def set_nPaths(self, nPaths):
+#         self.nPaths = nPaths
         
-    def set_numForPartition(self,num):
-        self.num = num+1
-        self.partition01 = np.linspace(0,1,num=self.num)
+#     def set_numForPartition(self,num):
+#         self.num = num+1
+#         self.partition01 = np.linspace(0,1,num=self.num)
     
-    def generatePath(self):
-        #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
-        mat = np.load('macrodata.npy')
-        X,Y = mat[:,1:-1], mat[:,-1].reshape((-1,1))
-        #del x_1,x_2,x_3,x_4_1,x_4_2,y
+#     def generatePath(self):
+#         #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+#         mat = np.load('macrodata.npy')
+#         X,Y = mat[:,1:-1], mat[:,-1].reshape((-1,1))
+#         #del x_1,x_2,x_3,x_4_1,x_4_2,y
 
-        # Standardize Data
-        X = StandardScaler().fit_transform(X) #-mean() --> /std
-        max_abs_scaler = MaxAbsScaler()
-        Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
+#         # Standardize Data
+#         X = StandardScaler().fit_transform(X) #-mean() --> /std
+#         max_abs_scaler = MaxAbsScaler()
+#         Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
 
-    # Construct 3 year rolling windows:
+#     # Construct 3 year rolling windows:
 
-        predictors_for_Signature = []
-        for i in range(self.windowSize,len(Y)):
-            #predictors.append(X[(i-self.windowSize):i,:].reshape(-1)) 
-            #test1 = X[(i-self.windowSize):i,:]
-            #test2 = Y_scaled[(i-self.windowSize):i,:]
-            XaugY = np.concatenate((X[(i-self.windowSize):i,:],Y_scaled[(i-self.windowSize):i,:]),axis = 1)
-            predictors_for_Signature.append(XaugY)
+#         predictors_for_Signature = []
+#         for i in range(self.windowSize,len(Y)):
+#             #predictors.append(X[(i-self.windowSize):i,:].reshape(-1)) 
+#             #test1 = X[(i-self.windowSize):i,:]
+#             #test2 = Y_scaled[(i-self.windowSize):i,:]
+#             XaugY = np.concatenate((X[(i-self.windowSize):i,:],Y_scaled[(i-self.windowSize):i,:]),axis = 1)
+#             predictors_for_Signature.append(XaugY)
     
-        predictors_for_Signature = np.array(predictors_for_Signature)
-        if self.forecastGap == 0:
-            self.X = predictors_for_Signature #-0 = 0, therefore [:-0] would be empty slice...
-        else:
-            self.X = predictors_for_Signature[:(-self.forecastGap),:,:]
+#         predictors_for_Signature = np.array(predictors_for_Signature)
+#         if self.forecastGap == 0:
+#             self.X = predictors_for_Signature #-0 = 0, therefore [:-0] would be empty slice...
+#         else:
+#             self.X = predictors_for_Signature[:(-self.forecastGap),:,:]
             
-        selfX = self.X
-        self.Y = np.array(Y_scaled[self.windowSize+self.forecastGap:])
-        selfY = self.Y
-        return self.X
+#         selfX = self.X
+#         self.Y = np.array(Y_scaled[self.windowSize+self.forecastGap:])
+#         selfY = self.Y
+#         return self.X
     
-    def generateResponse(self):
-        return self.Y
+#     def generateResponse(self):
+#         return self.Y
     
     
 class GeneratorMacroDataQ(DataGenerator):
@@ -366,9 +368,13 @@ class GeneratorMacroDataQ(DataGenerator):
         self.forecastGap = newGap
     
     def generatePath(self):
-        x_1,x_2,x_3,x_4_1,x_4_2,y = importDataQ()
-        X,Y,year = prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y)
-        del x_1,x_2,x_3,x_4_1,x_4_2,y
+        try:
+            x_1,x_2,x_3,x_4_1,x_4_2,y = importDataQ()
+            X,Y,year = prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y)
+            del x_1,x_2,x_3,x_4_1,x_4_2,y
+        except:
+            mat = np.load('macrodataQuarterly.npy')
+            X,Y = mat[:,1:-1].astype(float), mat[:,-1].reshape((-1,1)).astype(float)
         
         
         #YinvLogit = 1/(1+np.exp(-Y)) #no
@@ -382,8 +388,7 @@ class GeneratorMacroDataQ(DataGenerator):
         Y_scaled = Y_scaledOld
 
     # Construct 3 year rolling windows:
-        #reg_data = []
-        #predictors = []
+
         predictors_for_Signature = []
         for i in range(self.windowSize,len(Y)):
             #predictors.append(X[(i-self.windowSize):i,:].reshape(-1)) 
@@ -398,9 +403,9 @@ class GeneratorMacroDataQ(DataGenerator):
         else:
             self.X = predictors_for_Signature[:(-self.forecastGap),:,:]
             
-        selfX = self.X
+        #selfX = self.X
         self.Y = np.array(Y_scaled[self.windowSize+self.forecastGap:])
-        selfY = self.Y
+        #selfY = self.Y
         return self.X
     
     def generateResponse(self):
@@ -477,29 +482,19 @@ if __name__ == '__main__':
     num = 101
     mStar = 5
     
-    mat = np.load('macrodata.npy')
-    #G = GeneratorMacroDataFromNumpy(dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num)
-    #G.generatePath()
     
     #dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num,
     G = GeneratorMacroDataQ(windowSize = 12, forecastGap = 0)
     G.generatePath()
     G.generateResponse()
     
-    #G.X = add_basepoint(G.X)
-    
-    #X = G.X[0]
-    #a = G.a[0,:,2]
-    #G.generateResponse()
     
     ### Some plotting
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange')
+    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r',label = 'GDP growth')
+    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b',label = 'Unemployment')
+    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g',label = 'S&P 500 growth')
+    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y',label = 'IR spread')
+    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange', label = 'Lagged PDs')
+    plt.legend()
     plt.show()
     
-    ### Test how signature works --> time is No. of rows. Each column is one datatype e.g. GDP     
-    #X = np.array([[1,1],[2,2],[1.5,3]])
-    #sigX = ts.stream2sig(X, 2)

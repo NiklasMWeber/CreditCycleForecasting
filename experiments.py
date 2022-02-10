@@ -11,7 +11,7 @@ Created on Tue Jan 11 15:50:48 2022
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
-from train import get_sigX, select_hatm_cv, SignatureRegressionNik
+from train import get_sigX, select_hatm_cv, SignatureRegression
 from tools import add_time, add_basepoint, plotTable
 
 
@@ -22,14 +22,22 @@ class CompareSigAndLinReg():
         self.Y = Y
         self.testRatio = testRatio
         
-    def compare(self, X = None, Y = None, Kpen = None, mHat = None, normalizeFeatures = True):
+    def compare(self, X = None, Y = None, mHat = None, normalizeFeatures = True, addTime = True, addBase = True):
         
         if X != None: self.X = X
         if Y != None: self.Y = Y
         
+
+        
         #Find params for Signature Regression
         self.X_train, self.X_test, self.Y_train, self.Y_test =         \
             train_test_split(self.X,self.Y,test_size = self.testRatio)
+            
+        ### Augment paths for Signature Regression (add Basepoint 0 and time dimension):
+        if addTime == True:
+            self.X_train, self.X_test = add_time(self.X_train), add_time(self.X_test)
+        if addBase == True:
+            self.X_train, self.X_test = add_basepoint(self.X_train), add_basepoint(self.X_test)
         
         #self.X[:80], self.X[80:], self.Y[:80], self.Y[80:]
             
@@ -38,7 +46,6 @@ class CompareSigAndLinReg():
         #                     alpha = None,normalizeFeatures = True, plotTrue = False)
         # else:
         #     self.Kpen = Kpen
-        self.Kpen = Kpen
         
         
         if mHat == None:
@@ -50,7 +57,7 @@ class CompareSigAndLinReg():
         
         ### Signature Regression:
         
-        self.reg = SignatureRegressionNik(
+        self.reg = SignatureRegression(
             m = self.mHat, normalizeFeatures = normalizeFeatures, alpha = None)
         self.reg.fit(self.X_train,self.Y_train)
         
@@ -89,7 +96,7 @@ class CompareSigAndLinReg():
         return self.MSE_Sig_test,self.MSE_LinReg_test,self.R_Sig_test,self.R_LinReg_test
     
     def createComparisonMatrix(self,nPathsList,numForPartitionList,dataGenerator, iterations = 1,
-                               Kpen = None, mHat = None, addTime = True, normalizeFeatures = True):
+                               mHat = None, addTime = True, addBase = True, normalizeFeatures = True):
         
         self.numErr = 0
         
@@ -102,7 +109,7 @@ class CompareSigAndLinReg():
         R_LinReg_trainMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2)) 
         
         mHat_Matrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
-        Kpen_Matrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
+        #Kpen_Matrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
         
         
         for i_nPaths, nPaths in enumerate(nPathsList):
@@ -115,19 +122,15 @@ class CompareSigAndLinReg():
                 
                 R_Sig_trainL, R_LinReg_trainL = [],[]
                 
-                mHatL,KpenL = [],[]
+                mHatL = []
                 
                 for i in range(1,iterations+1):
                     self.X = dataGenerator.generatePath()
                     self.Y = dataGenerator.generateResponse()
                     
-                    if addTime == True:
-                        self.X = add_time(self.X)
-                        self.X = add_basepoint(self.X)
-                        #a=5
 
                     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = \
-                        self.compare(Kpen = Kpen,mHat= mHat, normalizeFeatures = normalizeFeatures)
+                        self.compare(mHat= mHat, normalizeFeatures = normalizeFeatures, addTime = addTime, addBase = addBase)
                     #while calcSuccess == False:
                         # try:
                         #     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = self.compare()
@@ -144,7 +147,6 @@ class CompareSigAndLinReg():
                     R_LinReg_trainL.append(self.R_LinReg_train)
                     
                     mHatL.append(self.mHat)
-                    KpenL.append(self.Kpen)
                 
                 MSE_Sig_testMatrix[i_nPaths][j_num][0] = np.mean(MSE_Sig_testL)
                 MSE_LinReg_testMatrix[i_nPaths][j_num][0] = np.mean(MSE_LinReg_testL)
@@ -163,13 +165,12 @@ class CompareSigAndLinReg():
                 
                 mHat_Matrix[i_nPaths][j_num][0] = np.mean(mHatL)
                 mHat_Matrix[i_nPaths][j_num][1] = np.std(mHatL)
-                Kpen_Matrix[i_nPaths][j_num][0] = np.mean(KpenL)
-                Kpen_Matrix[i_nPaths][j_num][1] = np.std(KpenL)
+
                 #mMax_Matrix[i_nPaths][j_num][0] = np.mean(mMaxL)
                 #mMax_Matrix[i_nPaths][j_num][1] = np.std(mMaxL)
                 
         self.R_Sig_trainMatrix, self.R_LinReg_trainMatrix = R_Sig_trainMatrix, R_LinReg_trainMatrix
-        self.mHat_Matrix, self.Kpen_Matrix = mHat_Matrix, Kpen_Matrix
+        self.mHat_Matrix = mHat_Matrix
         #self.mMax_Matrix = mMax_Matrix
         
         self.MSE_Sig_testMatrix, self.MSE_LinReg_testMatrix, self.R_Sig_testMatrix,\
@@ -181,30 +182,35 @@ if __name__ == '__main__':
     
     comparer = CompareSigAndLinReg(testRatio = 0.33)
     
-    nPathsList = [1]#33, 50, 100, 200, 500, 1000]
-    numForPartitionList = [1]#[3,5,10,20,50,100]
+    nPathsList = [33]#33, 50, 100, 200, 500, 1000]
+    numForPartitionList = [5]#[3,5,10,20,50,100]
+    trueM = 5
+    plotTrue = True
     
-    G = dg.GeneratorMacroDataFromNumpy(dimPath = 3, nPaths = nPathsList[0],mStar = 5, num = numForPartitionList[0])
+    G = dg.GeneratorFermanian1(dimPath = 3, nPaths = nPathsList[0],mStar = trueM, num = numForPartitionList[0])
     #G = dg.GeneratorMacroDataQ(windowSize = 3, forecastGap = 0)
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
-        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G, iterations= 1, Kpen = 1, mHat = None, addTime = True)
-    R_Sig_trainMatrix, R_LinReg_trainMatrix = comparer.R_Sig_trainMatrix, comparer.R_LinReg_trainMatrix
+        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G, iterations= 1, mHat = None, addTime = True, addBase = True)
+    #R_Sig_trainMatrix, R_LinReg_trainMatrix = comparer.R_Sig_trainMatrix, comparer.R_LinReg_trainMatrix
     mHat_Matrix = comparer.mHat_Matrix
     
-    ###plotting generated data
-    # plotTable(data = mHat_Matrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanM')
-    # plotTable(data = mHat_Matrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
-    # plotTable(data = R_Sig_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanR')
-    # plotTable(data = R_Sig_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
-    # plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanR')
-    # plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
-    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
+    ###plotting results
+    if plotTrue == True:
+            plotTable(data = mHat_Matrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'meanM', trueM = trueM)
+            plotTable(data = mHat_Matrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'std', trueM = trueM)
+            plotTable(data = R_Sig_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'meanR', trueM = trueM)
+            plotTable(data = R_Sig_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'std', trueM = trueM)
+            plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'meanR', trueM = trueM)
+            plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+              colLabel = 'nPoints',rowLabel = 'nPaths', type = 'std', trueM = trueM)
+        
+
     
 
     

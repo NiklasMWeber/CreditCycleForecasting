@@ -11,7 +11,7 @@ Created on Tue Jan 11 15:50:48 2022
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
-from train import get_sigX, select_hatm_cv, SignatureRegressionNik
+from train import get_sigX, select_hatm_cv, SignatureRegression
 from tools import add_time, add_basepoint, plotTable
 
 
@@ -56,7 +56,7 @@ class CompareSigAndLinReg():
             
         ### Signature Regression:
         
-        self.reg = SignatureRegressionNik(
+        self.reg = SignatureRegression(
             m = self.mHat, normalizeFeatures = normalizeFeatures, alpha = None)
         self.reg.fit(self.X_train,self.Y_train)
         
@@ -301,17 +301,17 @@ if __name__ == '__main__':
     del betaMean, beta
     
     ###plotting generated data
-    # forecastingHorizon = [x+1 for x in forecastingGaps]
-    # plotTable(data = mHat_Matrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'meanM', Qflag = True)
-    # plotTable(data = mHat_Matrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'std', Qflag = True)
-    # plotTable(data = R_Sig_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'meanR', Qflag = True)
-    # plotTable(data = R_Sig_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'std', Qflag = True)
-    # plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'meanR', Qflag = True)
-    # plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-    #           colName = 'Window Size',rowName = 'Forecasting Horizon', type = 'std', Qflag = True)
+    forecastingHorizon = [x+1 for x in forecastingGaps]
+    plotTable(data = mHat_Matrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'meanM', Qflag = True)
+    plotTable(data = mHat_Matrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'std', Qflag = True)
+    plotTable(data = R_Sig_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'meanR', Qflag = True)
+    plotTable(data = R_Sig_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'std', Qflag = True)
+    plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'meanR', Qflag = True)
+    plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
+              colLabel = 'Window Size',rowLabel = 'Forecasting Horizon', type = 'std', Qflag = True)
     
