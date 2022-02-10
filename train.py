@@ -181,7 +181,7 @@ def getmHat(X,Y, Kpen,rho = 0.25,m_max = None,alpha=None,normalizeFeatures = Tru
         return mHatInput, regs[mHatInput-1], scalers[mHatInput-1]
     
     
-def select_hatm_cv(X, Y, max_k=None, scaling=False, plot=False):
+def select_hatm_cv(X, Y, max_k=None, normalizeFeatures=False, plot=False):
     """Select the optimal value of hatm for the signature linear model implemented in the class SignatureRegression by
     cross validation.
 
@@ -197,7 +197,7 @@ def select_hatm_cv(X, Y, max_k=None, scaling=False, plot=False):
     max_k: int,
         Maximal value of signature truncation to keep the number of features below max_features.
 
-    scaling: boolean, default=False
+    normalizeFeatures: boolean, default=False
         Whether to scale the predictor matrix to have zero mean and unit variance
 
     plot: boolean, default=False
@@ -225,7 +225,7 @@ def select_hatm_cv(X, Y, max_k=None, scaling=False, plot=False):
         kf = KFold(n_splits=5)
         score_i = []
         for train, test in kf.split(X):
-            reg = SignatureRegressionNik(k, normalizeFeatures=scaling)
+            reg = SignatureRegressionNik(k, normalizeFeatures=normalizeFeatures)
             reg.fit_fromSig(sigX[train], Y[train])
             score_i += [reg.get_loss_fromSig(sigX[test], Y[test])]
         score += [np.mean(score_i)]

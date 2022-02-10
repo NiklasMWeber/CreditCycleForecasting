@@ -11,8 +11,8 @@ Created on Tue Jan 11 15:50:48 2022
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
-from train import get_sigX, getKpen, select_hatm_cv, SignatureRegressionNik
-from tools import add_time
+from train import get_sigX, select_hatm_cv, SignatureRegressionNik
+from tools import add_time, add_basepoint, plotTable
 
 
 class CompareSigAndLinReg():
@@ -28,8 +28,10 @@ class CompareSigAndLinReg():
         if Y != None: self.Y = Y
         
         #Find params for Signature Regression
-        self.X_train, self.X_test, self.Y_train, self.Y_test = \
+        self.X_train, self.X_test, self.Y_train, self.Y_test =         \
             train_test_split(self.X,self.Y,test_size = self.testRatio)
+        
+        #self.X[:80], self.X[80:], self.Y[:80], self.Y[80:]
             
         # if (Kpen == None) and (mHat == None): #dont need Kpen if mHat is given
         #     self.Kpen = getKpen(self.X_train,self.Y_train,max_Kpen = 2000,rho = 0.25,
@@ -40,7 +42,7 @@ class CompareSigAndLinReg():
         
         
         if mHat == None:
-            self.mHat = select_hatm_cv(self.X_train, self.Y_train, max_k=None, scaling=True, plot=False)
+            self.mHat = select_hatm_cv(self.X_train, self.Y_train, max_k=None, normalizeFeatures=True, plot=False)
         else:
             self.mHat = mHat 
             # , _ , _ = getmHat(self.X_train, self.Y_train,self.Kpen, 
@@ -69,7 +71,7 @@ class CompareSigAndLinReg():
                                  fit_intercept=True, gcv_mode='svd')
         
         self.linReg_cv.fit(self.X_LinReg_train, self.Y_train)
-        self.alpha = self.linReg_cv.alpha_
+        #self.alpha = self.linReg_cv.alpha_
         
         self.Y_pred_LinReg_train = self.linReg_cv.predict(self.X_LinReg_train)
         self.Y_pred_LinReg_test = self.linReg_cv.predict(self.X_LinReg_test)
@@ -83,6 +85,7 @@ class CompareSigAndLinReg():
         self.R_LinReg_test =self.linReg_cv.score(self.X_LinReg_test, self.Y_test)
         self.R_LinReg_train = self.linReg_cv.score(self.X_LinReg_train, self.Y_train)
         
+        #testPerf = self.R_Sig_test
         return self.MSE_Sig_test,self.MSE_LinReg_test,self.R_Sig_test,self.R_LinReg_test
     
     def createComparisonMatrix(self,nPathsList,numForPartitionList,dataGenerator, iterations = 1,
@@ -120,7 +123,9 @@ class CompareSigAndLinReg():
                     
                     if addTime == True:
                         self.X = add_time(self.X)
-                    #calcSuccess = False
+                        self.X = add_basepoint(self.X)
+                        #a=5
+
                     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = \
                         self.compare(Kpen = Kpen,mHat= mHat, normalizeFeatures = normalizeFeatures)
                     #while calcSuccess == False:
@@ -176,16 +181,37 @@ if __name__ == '__main__':
     
     comparer = CompareSigAndLinReg(testRatio = 0.33)
     
-    dimPath = 3
-    mStar = 5
     nPathsList = [1]#33, 50, 100, 200, 500, 1000]
     numForPartitionList = [1]#[3,5,10,20,50,100]
     
-    G = dg.GeneratorMacroDataFromNumpy(dimPath = dimPath, nPaths = nPathsList[0],mStar = mStar, 
-                                   num = numForPartitionList[0])
+    G = dg.GeneratorMacroDataFromNumpy(dimPath = 3, nPaths = nPathsList[0],mStar = 5, num = numForPartitionList[0])
+    #G = dg.GeneratorMacroDataQ(windowSize = 3, forecastGap = 0)
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
-        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G,20, Kpen = 1, mHat = None, addTime = True)
+        comparer.createComparisonMatrix(nPathsList,numForPartitionList,G, iterations= 1, Kpen = 1, mHat = None, addTime = True)
     R_Sig_trainMatrix, R_LinReg_trainMatrix = comparer.R_Sig_trainMatrix, comparer.R_LinReg_trainMatrix
-    mHat_Matrix, Kpen_Matrix = comparer.mHat_Matrix, comparer.Kpen_Matrix
+    mHat_Matrix = comparer.mHat_Matrix
+    
+    ###plotting generated data
+    # plotTable(data = mHat_Matrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanM')
+    # plotTable(data = mHat_Matrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
+    # plotTable(data = R_Sig_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanR')
+    # plotTable(data = R_Sig_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
+    # plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'meanR')
+    # plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
+    #           colName = 'nPoints',rowName = 'nPaths', type = 'std')
+    
+
+    
+    
+    
+    
+    
+    
+    
     
