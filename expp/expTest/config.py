@@ -183,17 +183,16 @@ class CompareSigAndLinReg():
 if __name__ == '__main__':
     ##########################################################################
     ### Specify experiment configuration
-    nameForExperimentFolder = 'exp2'
+    nameForExperimentFolder = 'expTest'
     comparer = CompareSigAndLinReg(testRatio = 0.33)
     
     nPathsList = [33,50]#33, 50, 100, 200, 500, 1000]
     numForPartitionList = [5,10]#[3,5,10,20,50,100]
-    dimPath = 3
     trueM = 5
     plotTrue = True
     iterations = 1
     
-    G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0], num = numForPartitionList[0], mStar = trueM)
+    G = dg.GeneratorFermanian1(dimPath = 3, nPaths = nPathsList[0],mStar = trueM, num = numForPartitionList[0])
     #G = dg.GeneratorMacroDataQ(windowSize = 3, forecastGap = 0)
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
@@ -204,14 +203,14 @@ if __name__ == '__main__':
     
     ### Check and create directories for all experiments (parent directory) and for this specific experiment 
     path = os.getcwd()
-    if not os.path.isdir(path+'\exp'):
-        os.mkdir(path+'\exp')
+    if not os.path.isdir(path+'\expp'):
+        os.mkdir(path+'\expp')
        
-    while os.path.isdir(path+'\exp\\'+ nameForExperimentFolder) == True:
+    while os.path.isdir(path+'\expp\\'+ nameForExperimentFolder) == True:
         nameForExperimentFolder += 'New'
         print('Directory with this name already existed. Appended \'New\' to the name.')
         
-    foldername = path+'\exp\\'+ nameForExperimentFolder
+    foldername = path+'\expp\\'+ nameForExperimentFolder
     os.mkdir(foldername)
     
     ###Export results
@@ -237,12 +236,12 @@ if __name__ == '__main__':
     ###Plotting results
     if plotTrue == True:
         
-        mHatMeanRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\mHatMean.txt', index_col = 0, header = 0)
-        mHatStdRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\mHatStd.txt', index_col = 0, header = 0)
-        R_SigTestMeanRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\R_SigTestMean.txt', index_col = 0, header = 0)
-        R_SigTestStdRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\R_SigTestStd.txt', index_col = 0, header = 0)
-        R_LinRegTestMeanRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\R_LinRegTestMean.txt', index_col = 0, header = 0)
-        R_LinRegTestStdRead = pd.read_csv('exp\\'+ nameForExperimentFolder + '\\R_LinRegTestStd.txt', index_col = 0, header = 0)
+        mHatMeanRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\mHatMean.txt', index_col = 0, header = 0)
+        mHatStdRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\mHatStd.txt', index_col = 0, header = 0)
+        R_SigTestMeanRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\R_SigTestMean.txt', index_col = 0, header = 0)
+        R_SigTestStdRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\R_SigTestStd.txt', index_col = 0, header = 0)
+        R_LinRegTestMeanRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\R_LinRegTestMean.txt', index_col = 0, header = 0)
+        R_LinRegTestStdRead = pd.read_csv('expp\\'+ nameForExperimentFolder + '\\R_LinRegTestStd.txt', index_col = 0, header = 0)
         
         numForPartitionList = mHatMeanRead.columns
         nPathsList =  mHatMeanRead.index
@@ -257,7 +256,7 @@ if __name__ == '__main__':
         R_LinReg_testMatrix[:,:,0] = R_LinRegTestMeanRead.values
         R_LinReg_testMatrix[:,:,1] = R_LinRegTestStdRead.values
         
-        out_filename =  path + '\\exp\\'+ nameForExperimentFolder + '\\config.py'
+        out_filename =  path + '\\expp\\'+ nameForExperimentFolder + '\\config.py'
         with open(__file__, 'r') as f:
             with open(out_filename, 'w') as out:
                 for line in (f.readlines()):
