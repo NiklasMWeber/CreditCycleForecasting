@@ -192,7 +192,7 @@ if __name__ == '__main__':
     forecastingGaps = [0,1,2,3,4,5,7,9,11,15,19,23]
     trueM = None
     plotTrue = False
-    iterations = 20
+    iterations = 1
     
     G = dg.GeneratorMacroData(windowSize = 3, forecastGap = 0)
     

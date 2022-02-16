@@ -79,7 +79,7 @@ for nameForExperimentFolder in ListOfExperimentsWithRealData:
     plotTable(data = mHat_Matrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
           colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
     plotTable(data = R_Sig_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFlag = True)
     plotTable(data = R_Sig_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
           colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
     plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
