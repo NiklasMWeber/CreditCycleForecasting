@@ -211,7 +211,7 @@ if __name__ == '__main__':
     plotTrue = True
     iterations = 1
     
-    G = dg.GeneratorMacroDataQ(windowSize = 3, forecastGap = 0)
+    G = dg.GeneratorMacroData(windowSize = 3, forecastGap = 0)
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
         comparer.createComparisonMatrix(windowSizes = windowSizes, forecastingGaps = forecastingGaps
@@ -285,17 +285,17 @@ if __name__ == '__main__':
         
 
         plotTable(data = mHat_Matrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanM', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanM', MacroFlag = True)
         plotTable(data = mHat_Matrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
         plotTable(data = R_Sig_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFlag = True)
         plotTable(data = R_Sig_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
         plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFlag = True)
         plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+              colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
         
     ### Analyze reg coefficients (hardcoded!)
     

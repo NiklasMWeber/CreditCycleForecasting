@@ -193,8 +193,7 @@ if __name__ == '__main__':
     plotTrue = True
     iterations = 1
     
-    G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0], num = numForPartitionList[0], mStar = trueM)
-    #G = dg.GeneratorMacroDataQ(windowSize = 3, forecastGap = 0)
+    G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0], num = numForPartitionList[0], trueM = trueM)
     
     MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix = \
         comparer.createComparisonMatrix(nPathsList,numForPartitionList,G, iterations= iterations, mHat = None, addTime = True, addBase = True)

@@ -518,9 +518,9 @@ class SignatureRegression():
     
 #     dimPath = 2
 #     nPaths = 10000
-#     mStar = 5
+#     trueM = 5
     
-#     G = dg.GeneratorFermanian1(dimPath,nPaths,mStar, num = 101)
+#     G = dg.GeneratorFermanian1(dimPath,nPaths,trueM, num = 101)
 #     G.generatePath()
 #     G.generateResponse()
     

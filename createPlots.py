@@ -72,14 +72,14 @@ for nameForExperimentFolder in ListOfExperimentsWithRealData:
     
 
     plotTable(data = mHat_Matrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanM', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanM', MacroFlag = True)
     plotTable(data = mHat_Matrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
     plotTable(data = R_Sig_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFflag = True)
     plotTable(data = R_Sig_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)
     plotTable(data = R_LinReg_testMatrix[:,:,0], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'meanR', MacroFlag = True)
     plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = windowSizes,colList = forecastingHorizon,
-          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', Qflag = True)
+          colLabel = 'Forecasting Horizon',rowLabel = 'Window Size', type = 'std', MacroFlag = True)

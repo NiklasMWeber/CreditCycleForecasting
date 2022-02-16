@@ -7,7 +7,7 @@ Created on Mon Jan  3 17:50:46 2022
 import numpy as np
 import math
 #from tools import importData, prepareData
-from tools import importDataQ, prepareDataQ
+from tools import importData, prepareData
 from train import get_sigX
 from skfda.misc.covariances import Exponential
 from skfda.datasets import make_gaussian_process
@@ -32,13 +32,13 @@ class DataGenerator:
         
 class GeneratorFermanian1(DataGenerator):
     
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -55,7 +55,7 @@ class GeneratorFermanian1(DataGenerator):
         return self.X
         
     def generateResponse(self):
-        self.sigX = get_sigX(self.X, self.mStar)
+        self.sigX = get_sigX(self.X, self.trueM)
         self.sigdim = len(self.sigX[0])
         self.beta = np.random.rand(self.sigdim)/1000
         self.eps = np.random.uniform(-100,100,size=self.nPaths)
@@ -64,13 +64,13 @@ class GeneratorFermanian1(DataGenerator):
     
     
 class GeneratorFermanianIndependentMean(DataGenerator):
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -93,13 +93,13 @@ class GeneratorFermanianIndependentMean(DataGenerator):
         return np.array(self.Y)
     
 class GeneratorFermanianIndependentMax(DataGenerator):
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -123,13 +123,13 @@ class GeneratorFermanianIndependentMax(DataGenerator):
     
     
 class GeneratorFermanianDependentMean(DataGenerator):
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -155,13 +155,13 @@ class GeneratorFermanianDependentMean(DataGenerator):
     
     
 class GeneratorFermanianDependentMax(DataGenerator):
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -188,13 +188,13 @@ class GeneratorFermanianDependentMax(DataGenerator):
     
 class GeneratorFermanianGaussian(DataGenerator):
 
-    def __init__(self, dimPath, nPaths, mStar = None, num = None):
+    def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
         self.num = num
         self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -236,14 +236,14 @@ class GeneratorFermanianGaussian(DataGenerator):
     
 # class GeneratorMacroData(DataGenerator):
     
-#     def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None):
+#     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None):
 #         DataGenerator.__init__(self)
 #         self.dimPath = dimPath
 #         self.nPaths = nPaths
 #         self.num = num
 #         if num != None:
 #             self.partition01 = np.linspace(0,1,num=num)
-#         self.mStar = mStar
+#         self.trueM = trueM
         
 #     def set_nPaths(self, nPaths):
 #         self.nPaths = nPaths
@@ -285,7 +285,7 @@ class GeneratorFermanianGaussian(DataGenerator):
     
 # class GeneratorMacroDataFromNumpy(DataGenerator):
     
-#     def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None,
+#     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None,
 #                  windowSize = 3, forecastGap = 0):
 #         DataGenerator.__init__(self)
 #         self.dimPath = dimPath
@@ -295,7 +295,7 @@ class GeneratorFermanianGaussian(DataGenerator):
 #         self.forecastGap = forecastGap
 #         if num != None:
 #             self.partition01 = np.linspace(0,1,num=num)
-#         self.mStar = mStar
+#         self.trueM = trueM
         
 #     def set_nPaths(self, nPaths):
 #         self.nPaths = nPaths
@@ -340,9 +340,9 @@ class GeneratorFermanianGaussian(DataGenerator):
 #         return self.Y
     
     
-class GeneratorMacroDataQ(DataGenerator):
+class GeneratorMacroData(DataGenerator):
     
-    def __init__(self, dimPath = None, nPaths = None, mStar = None, num = None,
+    def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None,
                  windowSize = None, forecastGap = 0):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
@@ -352,7 +352,7 @@ class GeneratorMacroDataQ(DataGenerator):
         self.forecastGap = forecastGap
         if num != None:
             self.partition01 = np.linspace(0,1,num=num)
-        self.mStar = mStar
+        self.trueM = trueM
         
     def set_nPaths(self, nPaths):
         self.nPaths = nPaths
@@ -369,11 +369,11 @@ class GeneratorMacroDataQ(DataGenerator):
     
     def generatePath(self):
         try:
-            x_1,x_2,x_3,x_4_1,x_4_2,y = importDataQ()
-            X,Y,year = prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y)
+            x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+            X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
             del x_1,x_2,x_3,x_4_1,x_4_2,y
         except:
-            mat = np.load('macrodataQuarterly.npy')
+            mat = np.load('macrodata.npy')
             X,Y = mat[:,1:-1].astype(float), mat[:,-1].reshape((-1,1)).astype(float)
         
         
@@ -415,13 +415,13 @@ class GeneratorMacroDataQ(DataGenerator):
 ########## Classes to generate Fermanian Data (using her Method) ########################################
 # from get_data import get_train_test_data    
 # class GeneratorFermanianDependentMaxTest(DataGenerator):
-#     def __init__(self, dimPath, nPaths, mStar = None, num = None):
+#     def __init__(self, dimPath, nPaths, trueM = None, num = None):
 #         DataGenerator.__init__(self)
 #         self.dimPath = dimPath
 #         self.nPaths = nPaths
 #         self.num = num+1
 #         self.partition01 = np.linspace(0,1,num=num)
-#         self.mStar = mStar
+#         self.trueM = trueM
         
 #     def set_nPaths(self, nPaths):
 #         self.nPaths = nPaths
@@ -444,15 +444,15 @@ class GeneratorMacroDataQ(DataGenerator):
 #         return self.Y
     
 # class GeneratorFermanian1Test(DataGenerator):
-#     # Always uses mStar = 5. Fermanian hardcoded it!
+#     # Always uses trueM = 5. Fermanian hardcoded it!
     
-#     def __init__(self, dimPath, nPaths, mStar = None, num = None):
+#     def __init__(self, dimPath, nPaths, trueM = None, num = None):
 #         DataGenerator.__init__(self)
 #         self.dimPath = dimPath
 #         self.nPaths = nPaths
 #         self.num = num+1
 #         self.partition01 = np.linspace(0,1,num=num)
-#         self.mStar = mStar
+#         self.trueM = trueM
         
 #     def set_nPaths(self, nPaths):
 #         self.nPaths = nPaths
@@ -480,11 +480,11 @@ if __name__ == '__main__':
     dimPath = 5
     nPaths = 10
     num = 101
-    mStar = 5
+    trueM = 5
     
     
-    #dimPath = dimPath,nPaths = nPaths,mStar = mStar,num = num,
-    G = GeneratorMacroDataQ(windowSize = 12, forecastGap = 0)
+    #dimPath = dimPath,nPaths = nPaths,trueM = trueM,num = num,
+    G = GeneratorMacroData(windowSize = 12, forecastGap = 0)
     G.generatePath()
     G.generateResponse()
     

@@ -75,7 +75,7 @@ def importFile(fileWithPath, delimiter):
     
 #     return x_1,x_2,x_3,x_4_1,x_4_2,y
 
-def importDataQ():
+def importData():
     ''' 
     Maybe paths as input?
     '''
@@ -141,7 +141,7 @@ def importDataQ():
 #                       ,x_4[:,1]],dtype=object).transpose()
 #     return X,Y,years
 
-def prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y):
+def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     ''' 
     Maybe years as input?
     '''
@@ -184,9 +184,9 @@ def prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y):
     return X,Y.reshape(-1,1),years
 
 
-def plotTable(data, rowList = None,colList = None, colLabel = None, rowLabel = None, type = None, Qflag = False, trueM = None):
+def plotTable(data, rowList = None,colList = None, colLabel = None, rowLabel = None, type = None, MacroFlag = False, trueM = None):
 
-    if Qflag == True:
+    if MacroFlag == True:
         fig = plt.figure(figsize=(9,2.5))
     else:
         fig = plt.figure(figsize=(7,2.5))
@@ -245,7 +245,7 @@ def plotTable(data, rowList = None,colList = None, colLabel = None, rowLabel = N
     
     the_table.auto_set_font_size(False)
     
-    if Qflag == True:
+    if MacroFlag == True:
         the_table.set_fontsize(10)
         ax.set_ylabel(rowLabel, fontsize=13)
         ax.set_xlabel(colLabel, fontsize=13)
@@ -274,8 +274,8 @@ def plotTable(data, rowList = None,colList = None, colLabel = None, rowLabel = N
 
 
 if __name__ == '__main__':
-    x_1,x_2,x_3,x_4_1,x_4_2,y = importDataQ()
-    X,Y,years = prepareDataQ(x_1,x_2,x_3,x_4_1,x_4_2,y)
+    x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
+    X,Y,years = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
     mat = np.concatenate((years.reshape(-1,1), np.concatenate((X,Y), axis = 1)),axis = 1)
     # del x_1,x_2,x_3,x_4_1,x_4_2,y
     #a=5
