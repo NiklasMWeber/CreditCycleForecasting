@@ -26,6 +26,10 @@ class CompareSigAndLinReg():
         self.testRatio = testRatio
         
     def compare(self, X = None, Y = None, mHat = None, normalizeFeatures = True, addTime = True, addBase = True):
+        """ 
+        This method performs one single comparison between Singature regression and linear regression .
+        Results are stored in different arrays, some of which are returne, others are just stored as fields of the comparer.
+        """
         
         if X != None: self.X = X
         if Y != None: self.Y = Y
@@ -84,6 +88,11 @@ class CompareSigAndLinReg():
     
     def createComparisonMatrix(self,nPathsList,numForPartitionList,dataGenerator, iterations = 1,
                                mHat = None, addTime = True, addBase = True, normalizeFeatures = True):
+        """ 
+        This method performs multiple comparisons between Singature regression and linear regression.
+        It repeatedly calls the 'compare' method for all combinations of 'nPath' and 'num'.
+        Results are stored in different arrays, some of which are returne, others are just stored as fields of the comparer.
+        """
         
         self.numErr = 0
         

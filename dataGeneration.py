@@ -16,6 +16,7 @@ from skfda.datasets import make_gaussian_process
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler
 
 class DataGenerator:
+    """ Parent class for DataGenerators """
     def __init__(self, generator= None):
         self.generator = generator
         self.X = None
@@ -30,6 +31,7 @@ class DataGenerator:
         return self.Y
               
 class GeneratorFermanian1(DataGenerator):
+    """ Generates smooth paths with signature response """ 
     
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
@@ -61,6 +63,7 @@ class GeneratorFermanian1(DataGenerator):
         return np.array(self.Y)
        
 class GeneratorFermanianIndependentMean(DataGenerator):
+    """ Generates smooth paths with mean response """
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
@@ -89,7 +92,9 @@ class GeneratorFermanianIndependentMean(DataGenerator):
         return np.array(self.Y)
     
 class GeneratorFermanianIndependentMax(DataGenerator):
+    """ Generates smooth paths with maximum response """
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
+
         DataGenerator.__init__(self)
         self.dimPath = dimPath
         self.nPaths = nPaths
@@ -117,6 +122,7 @@ class GeneratorFermanianIndependentMax(DataGenerator):
         return np.array(self.Y)
        
 class GeneratorFermanianDependentMean(DataGenerator):
+    """ Generates smooth dependent paths with mean response """
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
@@ -147,6 +153,7 @@ class GeneratorFermanianDependentMean(DataGenerator):
         return np.array(self.Y)
       
 class GeneratorFermanianDependentMax(DataGenerator):
+    """ Generates smooth dependent paths with maximum response """
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
         self.dimPath = dimPath
@@ -177,6 +184,7 @@ class GeneratorFermanianDependentMax(DataGenerator):
         return np.array(self.Y)
             
 class GeneratorFermanianGaussian(DataGenerator):
+    """ Generates Gaussian paths with trend slope response """
 
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
@@ -194,19 +202,6 @@ class GeneratorFermanianGaussian(DataGenerator):
         self.partition01 = np.linspace(0,1,num=self.num)
     
     def generatePath(self):
-        """ Generates n gaussian processes with a linear trend
-
-		Parameters
-		----------
-		n: int
-			Number of samples.
-
-		Returns
-		-------
-		X: array, shape (n, self.npoints, self.d)
-			Array of sample paths. It is a 3-dimensional array, containing the coordinates in R^d of n piecewise
-			linear paths, each composed of npoints.
-		"""
         X = np.zeros((self.nPaths, self.num, self.dimPath))
         times = np.repeat(np.expand_dims(np.linspace(0, 1, self.num), -1), self.nPaths * self.dimPath, 1)
         times = times.reshape((self.num, self.nPaths, self.dimPath)).transpose((1, 0, 2))
@@ -225,6 +220,8 @@ class GeneratorFermanianGaussian(DataGenerator):
         return self.Y
        
 class GeneratorMacroData(DataGenerator):
+    """ Generates 'widowSize' sized windows of macroeconomic data chooses probability of default corresponding to 
+    'forecastGap' as response """
     
     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None,
                  windowSize = None, forecastGap = 0):
@@ -287,26 +284,4 @@ class GeneratorMacroData(DataGenerator):
     
     def generateResponse(self):
         return self.Y
-          
-# if __name__ == '__main__':
-    # import matplotlib.pyplot as plt
-    
-    # dimPath = 5
-    # nPaths = 10
-    # num = 101
-    # trueM = 5
-    
-    # G = GeneratorMacroData(windowSize = 12, forecastGap = 0)
-    # G.generatePath()
-    # G.generateResponse()
-    
-    
-    # ### Some plotting
-    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r',label = 'GDP growth')
-    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b',label = 'Unemployment')
-    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g',label = 'S&P 500 growth')
-    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y',label = 'IR spread')
-    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange', label = 'Lagged PDs')
-    # plt.legend()
-    # plt.show()
-    
+        

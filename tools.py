@@ -53,6 +53,9 @@ def add_basepoint(X, bpoint = None):
     return Xbased
   
 def importFile(fileWithPath, delimiter):
+    """ 
+    Simple importing of a file, line by line. 
+    """
     x = []
     with open(fileWithPath, 'r') as file:
         file = csv.reader(file, delimiter=delimiter)
@@ -61,9 +64,9 @@ def importFile(fileWithPath, delimiter):
     return x
 
 def importData():
-    ''' 
-    Maybe paths as input?
-    '''
+    """ 
+    Imports data from the different paths using 'importFile()'
+    """
     
     gdpPath = r'C:\Users\nikth\Documents\Uni\Dateien\Semester 11\MA\Data\GDP.csv'
     unemplPath = r'C:\Users\nikth\Documents\Uni\Dateien\Semester 11\MA\Data\Unemployment.csv'
@@ -82,6 +85,10 @@ def importData():
     return x_1,x_2,x_3,x_4_1,x_4_2,y
 
 def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
+    """
+    Prepares data importet by 'ImportData()' by filtering out the correct years
+    and dropping unecessary information.
+    """
     
     y_min = 1990
     y_max = 2021
@@ -118,7 +125,27 @@ def prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y):
     return X,Y.reshape(-1,1),years
 
 def plotTable(data, rowList = None,colList = None, colLabel = None, rowLabel = None, type = None, MacroFlag = False, trueM = None):
-
+    """ 
+    Plots input matrices as tables
+    
+    Parameters
+    ----------
+    type: str
+        Can be 'meanM', 'meanMWhite', 'meanR' and 'std', depending on whether one wants to 
+        plot the average trunc. order while knowing the true order, 
+        plot the average trunc. order whithout knowing the true order,
+        plot the average R^2 value or
+        plot any type of std.
+    
+    MacroFlag: boolean
+        Indicates whether the tables contains synthetically data or macro data.
+        This changes some specificationy, e.g. the labels of the axis.
+    
+    trueM: int
+        Indicates the true truncation order if it is known. Determines coloring 
+        of the table containing average trucnation order.
+    """
+    
     if MacroFlag == True:
         fig = plt.figure(figsize=(9,2.5))
     else:
