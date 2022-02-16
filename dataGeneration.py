@@ -2,18 +2,18 @@
 """
 Created on Mon Jan  3 17:50:46 2022
 
-@author: nikth
+This file provides classes that return different types of data, either synthetically generated or using the real-world macroeconomic data from the macrodata.npy array.
+
+@author: Niklas Weber
 """
+
 import numpy as np
 import math
-#from tools import importData, prepareData
 from tools import importData, prepareData
 from train import get_sigX
 from skfda.misc.covariances import Exponential
 from skfda.datasets import make_gaussian_process
 from sklearn.preprocessing import StandardScaler, MaxAbsScaler
-
-
 
 class DataGenerator:
     def __init__(self, generator= None):
@@ -28,8 +28,7 @@ class DataGenerator:
     def generateResponse(self):
         self.Y = self.generator.generateResponse()
         return self.Y
-        
-        
+              
 class GeneratorFermanian1(DataGenerator):
     
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
@@ -47,7 +46,6 @@ class GeneratorFermanian1(DataGenerator):
         self.num = num
         self.partition01 = np.linspace(0,1,num=num)
     
-        
     def generatePath(self):
         self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.X = np.array([self.a[i,:,0]+10*self.a[i,:,1]*np.sin(2*math.pi*self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2]) +10*(self.partition01.reshape(len(self.partition01),1) - self.a[i,:,3])**3 for i in range(self.nPaths)])
@@ -61,8 +59,7 @@ class GeneratorFermanian1(DataGenerator):
         self.eps = np.random.uniform(-100,100,size=self.nPaths)
         self.Y = [np.dot(self.beta,self.sigX[i])+self.eps[i] for i in range(self.nPaths)]
         return np.array(self.Y)
-    
-    
+       
 class GeneratorFermanianIndependentMean(DataGenerator):
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
@@ -78,8 +75,7 @@ class GeneratorFermanianIndependentMean(DataGenerator):
     def set_numForPartition(self,num):
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=self.num)
-    
-        
+           
     def generatePath(self):
         self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.X = np.array([self.a[i,:,0]+10*self.a[i,:,1]*np.sin(2*math.pi*self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2]) +10*(self.partition01.reshape(len(self.partition01),1) - self.a[i,:,3])**3 for i in range(self.nPaths)])       
@@ -107,8 +103,7 @@ class GeneratorFermanianIndependentMax(DataGenerator):
     def set_numForPartition(self,num):
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=self.num)
-    
-        
+           
     def generatePath(self):
         self.a = np.random.rand(self.nPaths,self.dimPath,4)
         self.X = np.array([self.a[i,:,0]+10*self.a[i,:,1]*np.sin(2*math.pi*self.partition01.reshape(len(self.partition01),1) /self.a[i,:,2]) +10*(self.partition01.reshape(len(self.partition01),1) - self.a[i,:,3])**3 for i in range(self.nPaths)])       
@@ -120,8 +115,7 @@ class GeneratorFermanianIndependentMax(DataGenerator):
         
         self.Y = np.max(self.X_LastTimeIndex, axis = 1)
         return np.array(self.Y)
-    
-    
+       
 class GeneratorFermanianDependentMean(DataGenerator):
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
@@ -137,8 +131,7 @@ class GeneratorFermanianDependentMean(DataGenerator):
     def set_numForPartition(self,num):
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=self.num)
-    
-        
+           
     def generatePath(self):
         self.a_path = np.random.rand(self.nPaths,1,4)
         self.a_dim =np.random.rand(1,self.dimPath,1) 
@@ -152,8 +145,7 @@ class GeneratorFermanianDependentMean(DataGenerator):
         
         self.Y = np.mean(self.X_LastTimeIndex, axis = 1)
         return np.array(self.Y)
-    
-    
+      
 class GeneratorFermanianDependentMax(DataGenerator):
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
         DataGenerator.__init__(self)
@@ -169,8 +161,7 @@ class GeneratorFermanianDependentMax(DataGenerator):
     def set_numForPartition(self,num):
         self.num = num+1
         self.partition01 = np.linspace(0,1,num=self.num)
-    
-        
+         
     def generatePath(self):
         self.a_path = np.random.rand(self.nPaths,1,4)
         self.a_dim =np.random.rand(1,self.dimPath,1) 
@@ -184,8 +175,7 @@ class GeneratorFermanianDependentMax(DataGenerator):
         
         self.Y = np.max(self.X_LastTimeIndex, axis = 1)
         return np.array(self.Y)
-        
-    
+            
 class GeneratorFermanianGaussian(DataGenerator):
 
     def __init__(self, dimPath, nPaths, trueM = None, num = None):
@@ -233,113 +223,7 @@ class GeneratorFermanianGaussian(DataGenerator):
     def generateResponse(self):
         self.Y = np.sqrt(np.sum(self.slope ** 2, axis=1))
         return self.Y
-    
-# class GeneratorMacroData(DataGenerator):
-    
-#     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None):
-#         DataGenerator.__init__(self)
-#         self.dimPath = dimPath
-#         self.nPaths = nPaths
-#         self.num = num
-#         if num != None:
-#             self.partition01 = np.linspace(0,1,num=num)
-#         self.trueM = trueM
-        
-#     def set_nPaths(self, nPaths):
-#         self.nPaths = nPaths
-        
-#     def set_numForPartition(self,num):
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=self.num)
-    
-#     def generatePath(self):
-#         try:
-#             #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
-#             #X,Y,year = prepareData(x_1,x_2,x_3,x_4_1,x_4_2,y)
-#             #del x_1,x_2,x_3,x_4_1,x_4_2,y
-#             print('Deprecated Part of Code!!')
-#         except:
-#             mat = np.load('macrodata.npy')
-#             X,Y = mat[:,1:-1], mat[:,-1].reshape((-1,1))
-
-#         # Standardize Data
-#         X = StandardScaler().fit_transform(X) #-mean() --> /std
-#         max_abs_scaler = MaxAbsScaler()
-#         Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
-
-#     # Construct 3 year rolling windows:
-#         reg_data = []
-#         predictors = []
-#         predictors_for_Signature = []
-#         for i in range(3,len(year)):
-#             predictors.append(X[(i-3):i,:].reshape(-1))  
-#             predictors_for_Signature.append(X[(i-3):i,:])
-    
-#         predictors = np.array(predictors_for_Signature)
-#         self.X = predictors
-#         self.Y = np.array(Y_scaled[3:len(year)])
-#         return self.X
-    
-#     def generateResponse(self):
-#         return self.Y
-    
-# class GeneratorMacroDataFromNumpy(DataGenerator):
-    
-#     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None,
-#                  windowSize = 3, forecastGap = 0):
-#         DataGenerator.__init__(self)
-#         self.dimPath = dimPath
-#         self.nPaths = nPaths
-#         self.num = num
-#         self.windowSize = windowSize
-#         self.forecastGap = forecastGap
-#         if num != None:
-#             self.partition01 = np.linspace(0,1,num=num)
-#         self.trueM = trueM
-        
-#     def set_nPaths(self, nPaths):
-#         self.nPaths = nPaths
-        
-#     def set_numForPartition(self,num):
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=self.num)
-    
-#     def generatePath(self):
-#         #x_1,x_2,x_3,x_4_1,x_4_2,y = importData()
-#         mat = np.load('macrodata.npy')
-#         X,Y = mat[:,1:-1], mat[:,-1].reshape((-1,1))
-#         #del x_1,x_2,x_3,x_4_1,x_4_2,y
-
-#         # Standardize Data
-#         X = StandardScaler().fit_transform(X) #-mean() --> /std
-#         max_abs_scaler = MaxAbsScaler()
-#         Y_scaled = max_abs_scaler.fit_transform(Y-np.mean(Y))# -mean --> range [-1,1]
-
-#     # Construct 3 year rolling windows:
-
-#         predictors_for_Signature = []
-#         for i in range(self.windowSize,len(Y)):
-#             #predictors.append(X[(i-self.windowSize):i,:].reshape(-1)) 
-#             #test1 = X[(i-self.windowSize):i,:]
-#             #test2 = Y_scaled[(i-self.windowSize):i,:]
-#             XaugY = np.concatenate((X[(i-self.windowSize):i,:],Y_scaled[(i-self.windowSize):i,:]),axis = 1)
-#             predictors_for_Signature.append(XaugY)
-    
-#         predictors_for_Signature = np.array(predictors_for_Signature)
-#         if self.forecastGap == 0:
-#             self.X = predictors_for_Signature #-0 = 0, therefore [:-0] would be empty slice...
-#         else:
-#             self.X = predictors_for_Signature[:(-self.forecastGap),:,:]
-            
-#         selfX = self.X
-#         self.Y = np.array(Y_scaled[self.windowSize+self.forecastGap:])
-#         selfY = self.Y
-#         return self.X
-    
-#     def generateResponse(self):
-#         return self.Y
-    
-    
+       
 class GeneratorMacroData(DataGenerator):
     
     def __init__(self, dimPath = None, nPaths = None, trueM = None, num = None,
@@ -377,11 +261,7 @@ class GeneratorMacroData(DataGenerator):
             X,Y = mat[:,1:-1].astype(float), mat[:,-1].reshape((-1,1)).astype(float)
         
         
-        #YinvLogit = 1/(1+np.exp(-Y)) #no
-        #Ylogit = np.log(Y/(1-Y)) #maybe
-        #Ynorm = StandardScaler().fit_transform(Y) #maybe
-        #Y_scaled = MaxAbsScaler().fit_transform(Y)# -mean --> range [-1,1] #maybe
-        Y_scaledOld = MaxAbsScaler().fit_transform(Y-np.mean(Y)) #maybe
+        Y_scaledOld = MaxAbsScaler().fit_transform(Y-np.mean(Y)) 
 
         # Standardize Data
         X = StandardScaler().fit_transform(X) #-mean() --> /std
@@ -391,9 +271,7 @@ class GeneratorMacroData(DataGenerator):
 
         predictors_for_Signature = []
         for i in range(self.windowSize,len(Y)):
-            #predictors.append(X[(i-self.windowSize):i,:].reshape(-1)) 
-            #test1 = X[(i-self.windowSize):i,:]
-            #test2 = Y_scaled[(i-self.windowSize):i,:]
+            
             XaugY = np.concatenate((X[(i-self.windowSize):i,:],Y_scaled[(i-self.windowSize):i,:]),axis = 1)
             predictors_for_Signature.append(XaugY)
     
@@ -403,98 +281,32 @@ class GeneratorMacroData(DataGenerator):
         else:
             self.X = predictors_for_Signature[:(-self.forecastGap),:,:]
             
-        #selfX = self.X
         self.Y = np.array(Y_scaled[self.windowSize+self.forecastGap:])
-        #selfY = self.Y
+
         return self.X
     
     def generateResponse(self):
         return self.Y
+          
+# if __name__ == '__main__':
+    # import matplotlib.pyplot as plt
     
-   
-########## Classes to generate Fermanian Data (using her Method) ########################################
-# from get_data import get_train_test_data    
-# class GeneratorFermanianDependentMaxTest(DataGenerator):
-#     def __init__(self, dimPath, nPaths, trueM = None, num = None):
-#         DataGenerator.__init__(self)
-#         self.dimPath = dimPath
-#         self.nPaths = nPaths
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=num)
-#         self.trueM = trueM
-        
-#     def set_nPaths(self, nPaths):
-#         self.nPaths = nPaths
-        
-#     def set_numForPartition(self,num):
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=self.num)
+    # dimPath = 5
+    # nPaths = 10
+    # num = 101
+    # trueM = 5
     
-        
-#     def generatePath(self):
-#         npoints = self.num
-        
-#         Xtrain, Ytrain, _ , _ = get_train_test_data('smooth_dependent', ntrain=self.nPaths, nval=1,  Y_type='max', npoints=npoints, d=self.dimPath, scale_X=False)
-
-#         self.X = Xtrain
-#         self.Y = Ytrain
-#         return self.X
-    
-#     def generateResponse(self):
-#         return self.Y
-    
-# class GeneratorFermanian1Test(DataGenerator):
-#     # Always uses trueM = 5. Fermanian hardcoded it!
-    
-#     def __init__(self, dimPath, nPaths, trueM = None, num = None):
-#         DataGenerator.__init__(self)
-#         self.dimPath = dimPath
-#         self.nPaths = nPaths
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=num)
-#         self.trueM = trueM
-        
-#     def set_nPaths(self, nPaths):
-#         self.nPaths = nPaths
-        
-#     def set_numForPartition(self,num):
-#         self.num = num+1
-#         self.partition01 = np.linspace(0,1,num=self.num)
-    
-        
-#     def generatePath(self):
-#         npoints = self.num
-        
-#         Xtrain, Ytrain, _ , _ = get_train_test_data('smooth_independent', ntrain=self.nPaths, nval=1,  Y_type='sig', npoints=npoints, d=self.dimPath, scale_X=False)
-
-#         self.X = Xtrain
-#         self.Y = Ytrain
-#         return self.X
-    
-#     def generateResponse(self):
-#         return self.Y 
-##############################################################################      
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    
-    dimPath = 5
-    nPaths = 10
-    num = 101
-    trueM = 5
+    # G = GeneratorMacroData(windowSize = 12, forecastGap = 0)
+    # G.generatePath()
+    # G.generateResponse()
     
     
-    #dimPath = dimPath,nPaths = nPaths,trueM = trueM,num = num,
-    G = GeneratorMacroData(windowSize = 12, forecastGap = 0)
-    G.generatePath()
-    G.generateResponse()
-    
-    
-    ### Some plotting
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r',label = 'GDP growth')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b',label = 'Unemployment')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g',label = 'S&P 500 growth')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y',label = 'IR spread')
-    plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange', label = 'Lagged PDs')
-    plt.legend()
-    plt.show()
+    # ### Some plotting
+    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,0], 'r',label = 'GDP growth')
+    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,1], 'b',label = 'Unemployment')
+    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,2], 'g',label = 'S&P 500 growth')
+    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,3], 'y',label = 'IR spread')
+    # plt.plot(np.linspace(0,1,num = len(G.X[0,:,0])), G.X[0][:,4], 'orange', label = 'Lagged PDs')
+    # plt.legend()
+    # plt.show()
     

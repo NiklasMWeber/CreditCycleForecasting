@@ -2,8 +2,11 @@
 """
 Created on Sun Feb 13 17:27:58 2022
 
-@author: nikth
+This script can be used to create the tables shown in the thesis, after all experminents are conducted and stored in the 'exp'-folder.
+
+@author: Niklas Weber
 """
+
 import pandas as pd
 import numpy as np
 import os

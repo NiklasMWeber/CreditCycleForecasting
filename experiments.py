@@ -2,11 +2,12 @@
 """
 Created on Tue Jan 11 15:50:48 2022
 
-@author: nikth
-"""
+This script contains a class that performs a simulation with synthetically generated data. 
+It compares singature regression and linear regression. 
+The exact configuration can be adjusted in the `if __name__ == '__main__'` part of the script.
 
-# class M_Hat_Experiment():
-#     def __init__(self,X,Y,)
+@author: Niklas Weber
+"""
 
 import os
 import numpy as np
@@ -16,7 +17,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import RidgeCV
 from train import get_sigX, select_hatm_cv, SignatureRegression
 from tools import add_time, add_basepoint, plotTable
-
 
 class CompareSigAndLinReg():
     
@@ -29,9 +29,7 @@ class CompareSigAndLinReg():
         
         if X != None: self.X = X
         if Y != None: self.Y = Y
-        
-
-        
+               
         #Find params for Signature Regression
         self.X_train, self.X_test, self.Y_train, self.Y_test =         \
             train_test_split(self.X,self.Y,test_size = self.testRatio)
@@ -42,21 +40,10 @@ class CompareSigAndLinReg():
         if addBase == True:
             self.X_train, self.X_test = add_basepoint(self.X_train), add_basepoint(self.X_test)
         
-        #self.X[:80], self.X[80:], self.Y[:80], self.Y[80:]
-            
-        # if (Kpen == None) and (mHat == None): #dont need Kpen if mHat is given
-        #     self.Kpen = getKpen(self.X_train,self.Y_train,max_Kpen = 2000,rho = 0.25,
-        #                     alpha = None,normalizeFeatures = True, plotTrue = False)
-        # else:
-        #     self.Kpen = Kpen
-        
-        
         if mHat == None:
             self.mHat = select_hatm_cv(self.X_train, self.Y_train, max_k=None, normalizeFeatures=True, plot=False)
         else:
             self.mHat = mHat 
-            # , _ , _ = getmHat(self.X_train, self.Y_train,self.Kpen, 
-            #      rho = 0.25, alpha = None, m_max = None, normalizeFeatures=True, plotTrue = False, mHatInput = mHat)
         
         ### Signature Regression:
         
@@ -75,13 +62,11 @@ class CompareSigAndLinReg():
         self.X_LinReg_train = self.X_train.reshape(len(self.X_train),-1)
         self.X_LinReg_test = self.X_test.reshape(len(self.X_test),-1)
         
-        
         self.alphas=np.linspace(10 ** (-6), 100, num=1000)
         self.linReg_cv = RidgeCV(alphas=self.alphas, store_cv_values=False,
                                  fit_intercept=True, gcv_mode='svd')
         
         self.linReg_cv.fit(self.X_LinReg_train, self.Y_train)
-        #self.alpha = self.linReg_cv.alpha_
         
         self.Y_pred_LinReg_train = self.linReg_cv.predict(self.X_LinReg_train)
         self.Y_pred_LinReg_test = self.linReg_cv.predict(self.X_LinReg_test)
@@ -95,7 +80,6 @@ class CompareSigAndLinReg():
         self.R_LinReg_test =self.linReg_cv.score(self.X_LinReg_test, self.Y_test)
         self.R_LinReg_train = self.linReg_cv.score(self.X_LinReg_train, self.Y_train)
         
-        #testPerf = self.R_Sig_test
         return self.MSE_Sig_test,self.MSE_LinReg_test,self.R_Sig_test,self.R_LinReg_test
     
     def createComparisonMatrix(self,nPathsList,numForPartitionList,dataGenerator, iterations = 1,
@@ -112,8 +96,6 @@ class CompareSigAndLinReg():
         R_LinReg_trainMatrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2)) 
         
         mHat_Matrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
-        #Kpen_Matrix = np.zeros(shape = (len(nPathsList),len(numForPartitionList),2))
-        
         
         for i_nPaths, nPaths in enumerate(nPathsList):
             print('nPaths: ', nPaths)
@@ -131,16 +113,9 @@ class CompareSigAndLinReg():
                     self.X = dataGenerator.generatePath()
                     self.Y = dataGenerator.generateResponse()
                     
-
                     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = \
                         self.compare(mHat= mHat, normalizeFeatures = normalizeFeatures, addTime = addTime, addBase = addBase)
-                    #while calcSuccess == False:
-                        # try:
-                        #     MSE_Sig_test, MSE_LinReg_test, R_Sig_test, R_LinReg_test = self.compare()
-                        #     calcSuccess =True
-                        # except:
-                        #     self.numErr += 1
-                        #     print('Calc Error No. ' + str(self.numErr))
+
                     MSE_Sig_testL.append(MSE_Sig_test)
                     MSE_LinReg_testL.append(MSE_LinReg_test), 
                     R_Sig_testL.append(R_Sig_test) 
@@ -168,13 +143,9 @@ class CompareSigAndLinReg():
                 
                 mHat_Matrix[i_nPaths][j_num][0] = np.mean(mHatL)
                 mHat_Matrix[i_nPaths][j_num][1] = np.std(mHatL)
-
-                #mMax_Matrix[i_nPaths][j_num][0] = np.mean(mMaxL)
-                #mMax_Matrix[i_nPaths][j_num][1] = np.std(mMaxL)
                 
         self.R_Sig_trainMatrix, self.R_LinReg_trainMatrix = R_Sig_trainMatrix, R_LinReg_trainMatrix
         self.mHat_Matrix = mHat_Matrix
-        #self.mMax_Matrix = mMax_Matrix
         
         self.MSE_Sig_testMatrix, self.MSE_LinReg_testMatrix, self.R_Sig_testMatrix,\
             self.R_LinReg_testMatrix = MSE_Sig_testMatrix, MSE_LinReg_testMatrix, R_Sig_testMatrix, R_LinReg_testMatrix
@@ -183,15 +154,15 @@ class CompareSigAndLinReg():
 if __name__ == '__main__':
     ##########################################################################
     ### Specify experiment configuration
-    nameForExperimentFolder = 'exp2'
-    comparer = CompareSigAndLinReg(testRatio = 0.33)
+    nameForExperimentFolder = 'exp1'
+    comparer = CompareSigAndLinReg(testRatio = 0.5)
     
-    nPathsList = [33,50]#33, 50, 100, 200, 500, 1000]
-    numForPartitionList = [5,10]#[3,5,10,20,50,100]
+    nPathsList = [33, 50, 100, 200, 500, 1000]
+    numForPartitionList = [3,5,10,20,50,100]
     dimPath = 3
     trueM = 5
-    plotTrue = True
-    iterations = 1
+    plotTrue = False
+    iterations = 20
     
     G = dg.GeneratorFermanian1(dimPath = dimPath, nPaths = nPathsList[0], num = numForPartitionList[0], trueM = trueM)
     
@@ -230,8 +201,6 @@ if __name__ == '__main__':
     R_SigTestStd.to_csv(foldername + '\R_SigTestStd.txt', index = True, header = True )
     R_LinRegTestMean.to_csv(foldername + '\R_LinRegTestMean.txt', index = True, header = True )
     R_LinRegTestStd.to_csv(foldername + '\R_LinRegTestStd.txt', index = True, header = True )
-    
-    
     
     ###Plotting results
     if plotTrue == True:
@@ -274,15 +243,5 @@ if __name__ == '__main__':
               colLabel = 'nPoints',rowLabel = 'nPaths', type = 'meanR', trueM = trueM)
         plotTable(data = R_LinReg_testMatrix[:,:,1], rowList = nPathsList,colList = numForPartitionList,
               colLabel = 'nPoints',rowLabel = 'nPaths', type = 'std', trueM = trueM)
-        
 
-    
-
-    
-    
-    
-    
-    
-    
-    
     

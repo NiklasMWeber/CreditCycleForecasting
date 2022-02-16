@@ -108,7 +108,7 @@ Run the `experiments.py` file three times with the above configurations, only ch
 2. nameForExperimentFolder = 'exp2', G = dg.GeneratorFermanianIndependentMax
 3. nameForExperimentFolder = 'exp3', G = dg.GeneratorFermanianGaussian
 
-Then run `experimentCCF.py` with the above configuration and
+Then run `experimentCCF.py` with the above configuration and:
 4. nameForExperimentFolder = 'exp4', G = dg.GeneratorMacroData
 
 
